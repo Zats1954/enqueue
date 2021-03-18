@@ -85,7 +85,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                         FeedModel(posts = _data.value?.posts
                                 .orEmpty().map { if (it.id == post.id) post else it })
                 )
-                _postCreated.postValue(Unit)
             }
 
             override fun onError(e: Exception) {
@@ -106,7 +105,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 override fun onSuccess() {
                     _data.postValue(FeedModel(posts = _data.value?.posts
                             .orEmpty().filter { it.id != id }))
-                    _postCreated.postValue(Unit)
                 }
 
                 override fun onError(e: Exception) {
