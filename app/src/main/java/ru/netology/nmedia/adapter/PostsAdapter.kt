@@ -2,10 +2,12 @@ package ru.netology.nmedia.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
@@ -19,6 +21,7 @@ interface OnInteractionListener {
 
 class PostsAdapter(
     private val onInteractionListener: OnInteractionListener,
+
 ) : ListAdapter<Post, PostViewHolder>(PostDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val binding = CardPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -35,12 +38,20 @@ class PostViewHolder(
     private val binding: CardPostBinding,
     private val onInteractionListener: OnInteractionListener,
 ) : RecyclerView.ViewHolder(binding.root) {
-
+//    val BASE_URL ="http://192.168.0.129:9999/avatars/"
+    val BASE_URL ="http://10.0.2.2:9999/avatars/"
     fun bind(post: Post) {
         binding.apply {
             author.text = post.author
             published.text = post.published.toString()
             content.text = post.content
+            Glide.with(avatar)
+                    .load(BASE_URL+ post.authorAvatar)
+                    .circleCrop()
+                    .placeholder(R.drawable.ic_loading_100dp)
+                    .error(R.drawable.ic_error_100dp)
+                    .timeout(10_000)
+                    .into(avatar)
             // в адаптере
             like.isChecked = post.likedByMe
             like.text = "${post.likes}"
@@ -74,6 +85,8 @@ class PostViewHolder(
             }
         }
     }
+
+
 }
 
 class PostDiffCallback : DiffUtil.ItemCallback<Post>() {

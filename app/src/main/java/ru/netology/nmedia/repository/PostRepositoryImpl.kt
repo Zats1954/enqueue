@@ -1,10 +1,14 @@
 package ru.netology.nmedia.repository
 
+import android.view.View
+import android.widget.ImageView
+import com.bumptech.glide.Glide
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import ru.netology.nmedia.R
 import ru.netology.nmedia.dto.Post
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -18,7 +22,7 @@ class PostRepositoryImpl : PostRepository {
 
     companion object {
           private const val BASE_URL = "http://10.0.2.2:9999"
-//        private const val BASE_URL = "http://192.168.0.136:9999"
+//        private const val BASE_URL = "http://192.168.0.129:9999"
         private val jsonType = "application/json".toMediaType()
     }
 
@@ -88,7 +92,6 @@ class PostRepositoryImpl : PostRepository {
                 })
     }
 
-
     override fun likeByIdASync(callback: PostRepository.LikeIdCallback, id: Long) {
         val request: Request = Request.Builder()
                 .post(gson.toJson(id).toRequestBody(jsonType))
@@ -109,5 +112,15 @@ class PostRepositoryImpl : PostRepository {
                         callback.onError(e)
                     }
                 })
+    }
+
+    fun getImage(avatar: ImageView, post: Post) {
+        Glide.with(avatar)
+                .load(BASE_URL+ post.authorAvatar)
+                .circleCrop()
+                .placeholder(R.drawable.ic_loading_100dp)
+                .error(R.drawable.ic_error_100dp)
+                .timeout(10_000)
+                .into(avatar)
     }
 }

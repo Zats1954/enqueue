@@ -53,6 +53,7 @@ class FeedFragment : Fragment() {
             }
         })
         binding.list.adapter = adapter
+
         viewModel.data.observe(viewLifecycleOwner, { state ->
             adapter.submitList(state.posts)
             binding.progress.isVisible = state.loading
@@ -62,6 +63,7 @@ class FeedFragment : Fragment() {
 
         binding.retryButton.setOnClickListener {
             viewModel.loadPosts()
+
         }
 
         binding.fab.setOnClickListener {

@@ -1,6 +1,7 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
+import android.view.View
 import androidx.lifecycle.*
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
@@ -12,7 +13,7 @@ import kotlin.concurrent.thread
 private val empty = Post(
         id = 0,
         content = "",
-        authorAvatar = "",
+        authorAvatar = "404.png",
         author = "",
         likedByMe = false,
         likes = 0,
@@ -29,7 +30,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
-
     init {
         loadPosts()
     }
@@ -61,9 +61,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                     _data.postValue(FeedModel(error = true))
                 }
             }, it)
-
         }
-
     }
 
     fun edit(post: Post) {

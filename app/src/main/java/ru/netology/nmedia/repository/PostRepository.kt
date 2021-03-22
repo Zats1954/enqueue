@@ -1,5 +1,6 @@
 package ru.netology.nmedia.repository
 
+import android.content.Context
 import ru.netology.nmedia.dto.Post
 
 interface PostRepository {
