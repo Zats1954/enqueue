@@ -11,11 +11,21 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/common_spacing"
         android:text="@string/error_loading"
-        app:layout_constraintBottom_toTopOf="@+id/retryButton"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/errorMessage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed" />
+
+    <TextView
+        android:id="@+id/errorMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/common_spacing"
+        app:layout_constraintBottom_toTopOf="@id/retryButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/retryTitle" />
 
     <Button
         android:id="@+id/retryButton"
@@ -24,14 +34,15 @@
         android:text="@string/retry_loading"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/retryTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/errorMessage" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/errorGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="retryTitle,retryButton" />
+        app:constraint_referenced_ids="retryTitle,errorMessage,retryButton" />
 
     <TextView
         android:id="@+id/emptyText"
@@ -61,6 +72,8 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0"
+        tools:layout_editor_absoluteX="0dp"
         tools:listitem="@layout/card_post" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

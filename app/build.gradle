@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'com.google.gms.google-services'
+//apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 30
@@ -35,9 +35,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             manifestPlaceholders.usesCleartextTraffic = false
+            buildConfigField "String", "BASE_URL", "\"http://nmedia.herofuapp.com\""
         }
         debug {
             manifestPlaceholders.usesCleartextTraffic = true
+            buildConfigField "String", "BASE_URL", "\"http://192.168.0.136:9999\""
         }
     }
 }
@@ -59,6 +61,8 @@ dependencies {
     def firebase_version = "26.0.0"
     def okhttp_version = "4.9.0"
     def glide_version = "4.11.0"
+    def retrofit_version = "2.9.0"
+    def retrofitgson_version = "2.9.0"
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -66,7 +70,7 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
     implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
-    implementation "androidx.activity:activity-ktx:$activity_version"
+    implementation "androidx.activity:activity-ktx:${activity_version}"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
@@ -81,6 +85,8 @@ dependencies {
     implementation "com.google.firebase:firebase-messaging-ktx"
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     implementation "com.github.bumptech.glide:glide:$glide_version"
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitgson_version"
 
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "androidx.test.ext:junit:$ext_junit_version"
