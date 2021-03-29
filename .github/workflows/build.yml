@@ -1,10 +1,10 @@
-name: CI
+name: CI RETROFIT
 
 on:
   push:
-    branches: [ master ]
+    branches: [ retrofit ]
   pull_request:
-    branches: [ master ]
+    branches: [ retrofit ]
 
 jobs:
   build:
