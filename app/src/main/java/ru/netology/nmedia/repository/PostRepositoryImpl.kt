@@ -1,87 +1,32 @@
 package ru.netology.nmedia.repository
 
-import ru.netology.nmedia.api.PostApi
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import ru.netology.nmedia.dto.Post
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import ru.netology.nmedia.api.PostsApi
+import ru.netology.nmedia.dao.PostDao
+import ru.netology.nmedia.entity.PostEntity
 
-class PostRepositoryImpl : PostRepository {
-    override fun getAllAsync(callback: PostRepository.GetAllCallback) {
-       PostApi.service.getAll()
-           .enqueue(object : Callback<List<Post>> {
-                override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
-                    if (response.isSuccessful) {
-                        callback.onSuccess(response.body().orEmpty())
-                    } else {
-                        if(response.code() in  300..599)
-                            callback.onError(RuntimeException(response.code().toString()))
-                        else
-                            callback.onError(RuntimeException(response.message()))
-                    }
-                }
+class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
-                override fun onFailure(call: Call<List<Post>>, t: Throwable) {
-                    callback.onError(RuntimeException(t))
-                }
-            })
+    override val data: LiveData<List<Post>> = dao.getAll().map { it.map(PostEntity::toDto) }
+
+    override suspend fun getAll() {
+        val all = PostsApi.service.getAll()
+        dao.insert(all.map(PostEntity.Companion::fromDto))
     }
 
-
-
-    override fun saveAsync(callback: PostRepository.SaveCallback, post: Post) {
-        PostApi.service.save(post)
-                .enqueue(object : Callback<Post> {
-                    override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                        if (response.isSuccessful) {
-                            callback.onSuccess(response.body() ?: throw java.lang.RuntimeException("body is null"))
-                        } else {
-                            if(response.code() in  300..599)
-                                callback.onError(RuntimeException(response.code().toString()))
-                            else
-                                callback.onError(RuntimeException(response.message()))
-                        }
-                    }
-                    override fun onFailure(call: Call<Post>, t: Throwable) {
-                          callback.onError(RuntimeException(t))
-                    }
-                })
+    override suspend fun save(post: Post) {
+        PostsApi.service.save(post)
     }
 
-    override fun removeByIdAsync(callback: PostRepository.RemoveIdCallback, id: Long) {
-        PostApi.service.removeById(id)
-            .enqueue(object : Callback<Unit> {
-                override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
-                    if (response.isSuccessful) {
-                        callback.onSuccess( )
-                    } else {
-                        if(response.code() in  300..599)
-                            callback.onError(RuntimeException(response.code().toString()))
-                        else
-                            callback.onError(RuntimeException(response.message()))
-                    }
-                }
-                override fun onFailure(call: Call<Unit>, t: Throwable) {
-                    callback.onError(RuntimeException(t))
-                }
-            })
+    override suspend fun removeById(id: Long) {
+        PostsApi.service.removeById(id)
+        dao.removeById(id)
     }
-    override fun likeByIdASync(callback: PostRepository.LikeIdCallback, id: Long) {
-        PostApi.service.likeById(id)
-            .enqueue(object : Callback<Post> {
-                override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                    if (response.isSuccessful) {
-                        callback.onSuccess(response.body() ?: throw java.lang.RuntimeException("body is null") )
-                    } else {
-                        if(response.code() in  300..599)
-                            callback.onError(RuntimeException(response.code().toString()))
-                        else
-                            callback.onError(RuntimeException(response.message()))
-                    }
-                }
-                override fun onFailure(call: Call<Post>, t: Throwable) {
-                    callback.onError(RuntimeException(t))
-                }
-            })
+
+    override suspend fun likeById(id: Long) {
+       PostsApi.service.likeById(id)
+        dao.likeById(id)
     }
 }

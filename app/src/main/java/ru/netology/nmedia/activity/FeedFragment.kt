@@ -14,6 +14,7 @@ import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class FeedFragment : Fragment() {
@@ -54,13 +55,30 @@ class FeedFragment : Fragment() {
         })
         binding.list.adapter = adapter
 
-        viewModel.data.observe(viewLifecycleOwner, { state ->
-            adapter.submitList(state.posts)
-            binding.progress.isVisible = state.loading
-            binding.errorMessage.text = state.message
-            binding.errorGroup.isVisible = state.error
-            binding.emptyText.isVisible = state.empty
+        viewModel.posts.observe(viewLifecycleOwner, {
+            adapter.submitList(it)
+            binding.emptyText.isVisible = it.isEmpty()
         })
+        viewModel.data.observe(viewLifecycleOwner){state ->
+            when(state){
+                FeedState.Loading -> {
+                    binding.progress.isVisible = true
+                    binding.errorGroup.isVisible = false
+                    binding.list.isVisible = false
+                }
+                FeedState.Error -> {
+                    binding.progress.isVisible = false
+                    binding.errorGroup.isVisible = true
+                    binding.errorMessage.text = viewModel.errorMessage
+                    binding.list.isVisible = false
+                }
+                FeedState.Refreshing, FeedState.Success ->{
+                    binding.progress.isVisible = false
+                    binding.errorGroup.isVisible = false
+                    binding.list.isVisible = true
+                }
+            }
+        }
 
         binding.retryButton.setOnClickListener {
             viewModel.loadPosts()
