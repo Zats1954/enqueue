@@ -35,8 +35,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     var posts: LiveData<List<Post>> = repository.data
 
     init {
-        loadPosts()
-    }
+           loadPosts()
+         }
 
     fun loadPosts() {
         viewModelScope.launch {
@@ -60,7 +60,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             }
             edited.value = empty
         }
-
     }
 
     fun edit(post: Post) {
