@@ -1,5 +1,5 @@
 package ru.netology.nmedia.api
-
+/*   19.04.2021           */
 
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -10,8 +10,8 @@ import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.dto.Post
 import java.util.concurrent.TimeUnit
 
-//private const val BASE_URL = "http://10.0.2.2:9999"
-private const val BASE_URL = "http://192.168.0.136:9999"
+private const val BASE_URL = "http://10.0.2.2:9999"
+//private const val BASE_URL = "http://192.168.0.136:9999"
 
 private val client = OkHttpClient.Builder()
     .connectTimeout(30, TimeUnit.SECONDS)
