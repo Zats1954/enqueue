@@ -2,11 +2,14 @@ package ru.netology.nmedia.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedState
-import ru.netology.nmedia.model.FeedState.*
 import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.IOException
@@ -23,16 +26,32 @@ private val empty = Post(
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
     var errorMessage: String = ""
+    var newPostsCount :Int = 0
+        get() = field
+        set(value)  {field = value}
     private val repository: PostRepository =
         PostRepositoryImpl(AppDb.getInstance(application).postDao())
-    private val _data = MutableLiveData<FeedState>(Success)
+    private val _data = MutableLiveData<FeedState>(FeedState.Success)
     val data: LiveData<FeedState>
         get() = _data
+
+    val newer: LiveData<Int> =  repository.data.flatMapLatest {
+        val lastId = it.firstOrNull()?.id ?: 0L
+//        val countNew =
+            repository.getNewerCount(lastId)
+//           newPostsCount = repository.countNew
+//        countNew.map{value ->  newPostsCount.plus(value.singleOrNull() ?: 0)}
+//        countNew
+    }
+        .catch{e-> e.printStackTrace()}
+        .asLiveData(Dispatchers.Default)
+
+
     val edited = MutableLiveData(empty)
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
-    var posts: LiveData<List<Post>> = repository.data
+    var posts: Flow<FeedModel> = repository.data.map(::FeedModel)
 
     init {
            loadPosts()
@@ -40,13 +59,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadPosts() {
         viewModelScope.launch {
-            _data.value = Loading
+            _data.value = FeedState.Loading
             try {
                 repository.getAll()
-                _data.value = Success
+                _data.value = FeedState.Success
             } catch (e: Exception) {
                 myError(e)
-                _data.value = Error
+                _data.value = FeedState.Error
             }
         }
     }
@@ -78,10 +97,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 repository.likeById(id)
-                _data.value = Success
+                _data.value = FeedState.Success
             } catch (e: Exception) {
                 myError(e)
-                _data.value = Error
+                _data.value = FeedState.Error
             }
         }
     }
@@ -89,7 +108,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun removeById(id: Long) {
         val old = posts
         try {
-            posts.value?.filter {
+            posts.asLiveData(Dispatchers.Default).value?.posts?.filter {
                 it.id != id
             }
             viewModelScope.launch {
@@ -97,7 +116,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                     repository.removeById(id)
                 } catch (e: Exception) {
                     myError(e)
-                    _data.value = Error
+                    _data.value = FeedState.Error
                 }
             }
         } catch (e: IOException) {
@@ -107,7 +126,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun myError(e: Exception) {
         e.message?.let { it ->
-            _data.postValue(Error)
+            _data.postValue(FeedState.Error)
             errorMessage = when (it) {
                 "500" -> "Ошибка сервера"
                 "404","HTTP 404 " -> "Страница/пост не найдены"

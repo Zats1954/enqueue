@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
@@ -55,9 +56,9 @@ class FeedFragment : Fragment() {
         })
         binding.list.adapter = adapter
 
-        viewModel.posts.observe(viewLifecycleOwner, {
-            adapter.submitList(it)
-            binding.emptyText.isVisible = it.isEmpty()
+        viewModel.posts.asLiveData().observe(viewLifecycleOwner, {
+            adapter.submitList(it.posts)
+            binding.emptyText.isVisible = it.empty
         })
         viewModel.data.observe(viewLifecycleOwner){state ->
             when(state){
@@ -87,6 +88,13 @@ class FeedFragment : Fragment() {
 
         binding.fab.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+        }
+
+        viewModel.newer.observe(viewLifecycleOwner){
+            println("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj   ${viewModel.newPostsCount}")
+            if(it > 0)
+            println(it)
+            else println("nothing gone")
         }
 
         return binding.root
