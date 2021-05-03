@@ -37,4 +37,11 @@ interface PostDao {
 
     @Query("DELETE FROM PostEntity ")
     suspend fun removeAll()
+
+    @Query("UPDATE PostEntity SET newPost = 'false' WHERE newPost = 'true'")
+    suspend fun showNews()
+
+    @Query("SELECT COUNT(id) FROM PostEntity WHERE newPost = 'true'")
+    suspend fun countNews(): Int
 }
+

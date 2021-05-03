@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +20,7 @@ interface OnInteractionListener {
     fun onEdit(post: Post) {}
     fun onRemove(post: Post) {}
     fun onShare(post: Post) {}
+
 }
 
 class PostsAdapter(
@@ -45,6 +47,7 @@ class PostViewHolder(
             author.text = post.author
             published.text = post.published.toString()
             content.text = post.content
+            card.isVisible = !post.newPost
 
             Glide.with(avatar)
                     .load(BuildConfig.BASE_URL  + "/avatars/" + post.authorAvatar )
@@ -84,6 +87,7 @@ class PostViewHolder(
             share.setOnClickListener {
                 onInteractionListener.onShare(post)
             }
+
         }
     }
 

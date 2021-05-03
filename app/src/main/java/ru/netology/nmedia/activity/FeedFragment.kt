@@ -54,6 +54,7 @@ class FeedFragment : Fragment() {
                 startActivity(shareIntent)
             }
         })
+
         binding.list.adapter = adapter
 
         viewModel.posts.asLiveData().observe(viewLifecycleOwner, {
@@ -90,11 +91,19 @@ class FeedFragment : Fragment() {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
 
+        binding.newsButton.setOnClickListener {
+            viewModel.showNews()
+            binding.newsButton.isVisible = false
+            viewModel.clearCountNews()
+            viewModel.loadPosts()
+        }
+
         viewModel.newer.observe(viewLifecycleOwner){
-            println("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj   ${viewModel.newPostsCount}")
-            if(it > 0)
-            println(it)
-            else println("nothing gone")
+            println(" summ new posts ${ viewModel.countNewPosts} --> ${System.currentTimeMillis()} ")
+           if(viewModel.countNewPosts > 0){
+               binding.newsButton.text ="${viewModel.countNewPosts} new posts"
+               binding.newsButton.isVisible = true
+           }
         }
 
         return binding.root

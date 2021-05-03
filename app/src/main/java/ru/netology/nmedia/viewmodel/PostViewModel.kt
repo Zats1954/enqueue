@@ -14,6 +14,7 @@ import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.IOException
 
+
 private val empty = Post(
     id = 0,
     content = "",
@@ -21,37 +22,36 @@ private val empty = Post(
     author = "",
     likedByMe = false,
     likes = 0,
-    published = System.currentTimeMillis()
+    published = System.currentTimeMillis(),
+    newPost = false
 )
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
-    var errorMessage: String = ""
-    var newPostsCount :Int = 0
-        get() = field
-        set(value)  {field = value}
     private val repository: PostRepository =
         PostRepositoryImpl(AppDb.getInstance(application).postDao())
+
     private val _data = MutableLiveData<FeedState>(FeedState.Success)
     val data: LiveData<FeedState>
         get() = _data
 
-    val newer: LiveData<Int> =  repository.data.flatMapLatest {
-        val lastId = it.firstOrNull()?.id ?: 0L
-//        val countNew =
-            repository.getNewerCount(lastId)
-//           newPostsCount = repository.countNew
-//        countNew.map{value ->  newPostsCount.plus(value.singleOrNull() ?: 0)}
-//        countNew
-    }
-        .catch{e-> e.printStackTrace()}
-        .asLiveData(Dispatchers.Default)
-
-
-    val edited = MutableLiveData(empty)
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
+
+    val newer: LiveData<Int> =  repository.data.flatMapLatest {
+        val lastId = it.firstOrNull()?.id ?: 0L
+        val newPosts = repository.getNewerCount(lastId)
+        repository.countNew.also { countNewPosts = it }
+        println("countNewPosts = ${countNewPosts} --> ${System.currentTimeMillis()}")
+        newPosts
+    }.catch{e-> e.printStackTrace()}
+     .asLiveData(Dispatchers.Default)
+
+    val edited = MutableLiveData(empty)
+
     var posts: Flow<FeedModel> = repository.data.map(::FeedModel)
+    var errorMessage: String = ""
+    var countNewPosts :Int = 0
 
     init {
            loadPosts()
@@ -133,5 +133,22 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 else -> "Ошибка соединения"
             }
         }
+    }
+
+    fun showNews() {
+        viewModelScope.launch {
+            try {
+                repository.showNews()
+            } catch (e: Exception) {
+                myError(e)
+                _data.value = FeedState.Error
+            }
+        }
+
+    }
+
+    fun clearCountNews() {
+        countNewPosts = 0
+        repository.countNew = 0
     }
 }
