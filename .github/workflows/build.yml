@@ -1,10 +1,10 @@
-name: CI COROUTINE
+name: CI FLOW
 
 on:
   push:
-    branches: [ coroutine ]
+    branches: [ flow ]
   pull_request:
-    branches: [ coroutine ]
+    branches: [ flow ]
 
 jobs:
   build:
