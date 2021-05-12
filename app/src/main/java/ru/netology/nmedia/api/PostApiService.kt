@@ -2,7 +2,6 @@ package ru.netology.nmedia.api
 /*   19.04.2021           */
 
 import okhttp3.OkHttpClient
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create

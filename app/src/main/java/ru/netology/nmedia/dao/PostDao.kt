@@ -1,5 +1,7 @@
 package ru.netology.nmedia.dao
 
+import android.icu.number.IntegerWidth
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -38,10 +40,9 @@ interface PostDao {
     @Query("DELETE FROM PostEntity ")
     suspend fun removeAll()
 
-    @Query("UPDATE PostEntity SET newPost = 'false' WHERE newPost = 'true'")
+    @Query("UPDATE PostEntity SET newPost = 0 WHERE newPost = 1")
     suspend fun showNews()
 
-    @Query("SELECT COUNT(id) FROM PostEntity WHERE newPost = 'true'")
-    suspend fun countNews(): Int
+    @Query("SELECT COUNT() FROM PostEntity WHERE newPost = 1 ")
+    suspend fun countNews():  Int
 }
-

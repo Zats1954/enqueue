@@ -94,18 +94,17 @@ class FeedFragment : Fragment() {
         binding.newsButton.setOnClickListener {
             viewModel.showNews()
             binding.newsButton.isVisible = false
-            viewModel.clearCountNews()
             viewModel.loadPosts()
         }
 
-        viewModel.newer.observe(viewLifecycleOwner){
-            println(" summ new posts ${ viewModel.countNewPosts} --> ${System.currentTimeMillis()} ")
-           if(viewModel.countNewPosts > 0){
-               binding.newsButton.text ="${viewModel.countNewPosts} new posts"
-               binding.newsButton.isVisible = true
-           }
+        viewModel.newer.observe(viewLifecycleOwner) { countNewPosts ->
+//            println("countNewPosts ${countNewPosts}")
+            val newPostVisible = countNewPosts > 0
+            if (newPostVisible) {
+                binding.newsButton.text = "${countNewPosts} new posts"
+            }
+            binding.newsButton.isVisible = newPostVisible
         }
-
         return binding.root
     }
 }

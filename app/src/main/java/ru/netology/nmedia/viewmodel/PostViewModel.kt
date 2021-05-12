@@ -3,9 +3,11 @@ package ru.netology.nmedia.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
@@ -30,6 +32,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: PostRepository =
         PostRepositoryImpl(AppDb.getInstance(application).postDao())
 
+
+
+
     private val _data = MutableLiveData<FeedState>(FeedState.Success)
     val data: LiveData<FeedState>
         get() = _data
@@ -40,18 +45,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     val newer: LiveData<Int> =  repository.data.flatMapLatest {
         val lastId = it.firstOrNull()?.id ?: 0L
-        val newPosts = repository.getNewerCount(lastId)
-        repository.countNew.also { countNewPosts = it }
-        println("countNewPosts = ${countNewPosts} --> ${System.currentTimeMillis()}")
-        newPosts
+        repository.getNewerCount(lastId)
     }.catch{e-> e.printStackTrace()}
      .asLiveData(Dispatchers.Default)
 
     val edited = MutableLiveData(empty)
-
     var posts: Flow<FeedModel> = repository.data.map(::FeedModel)
     var errorMessage: String = ""
-    var countNewPosts :Int = 0
 
     init {
            loadPosts()
@@ -144,11 +144,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 _data.value = FeedState.Error
             }
         }
-
     }
 
-    fun clearCountNews() {
-        countNewPosts = 0
-        repository.countNew = 0
-    }
 }
