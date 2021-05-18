@@ -27,10 +27,10 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
                 val newer = PostsApi.service.getNewer(id).map(PostEntity.Companion::fromDto)
                  dao.insert(newer.map { it.copy(newPost = true)})
                 emit(dao.countNews())
+                delay(30_000L)
             }catch(e: IOException){}
         }
-    }.onEach{
-        delay(20_000L)}
+    }
 
 
     override suspend fun save(post: Post) {
