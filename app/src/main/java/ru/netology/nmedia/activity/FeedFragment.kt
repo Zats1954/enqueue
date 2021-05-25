@@ -22,6 +22,7 @@ class FeedFragment : Fragment() {
 
     private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
 
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -36,6 +37,7 @@ class FeedFragment : Fragment() {
 
             override fun onLike(post: Post) {
                 viewModel.likeById(post.id)
+
             }
 
             override fun onRemove(post: Post) {
@@ -53,7 +55,15 @@ class FeedFragment : Fragment() {
                     Intent.createChooser(intent, getString(R.string.chooser_share_post))
                 startActivity(shareIntent)
             }
+
+
+            override fun onShowImage(post:Post){
+                    val bundle = Bundle()
+                    bundle.putString("postImage", post.attachment?.url)
+                    findNavController().navigate(R.id.action_feedFragment_to_showImageFragment, bundle)
+            }
         })
+
 
         binding.list.adapter = adapter
 
@@ -78,6 +88,7 @@ class FeedFragment : Fragment() {
                     binding.progress.isVisible = false
                     binding.errorGroup.isVisible = false
                     binding.list.isVisible = true
+                    binding.newsButton.isVisible = false
                 }
             }
         }
@@ -99,7 +110,7 @@ class FeedFragment : Fragment() {
         }
 
         viewModel.newer.observe(viewLifecycleOwner){
-            println(" summ new posts ${ viewModel.countNewPosts} --> ${System.currentTimeMillis()} ")
+//            println(" summ new posts ${ viewModel.countNewPosts} --> ${System.currentTimeMillis()} ")
            if(viewModel.countNewPosts > 0){
                binding.newsButton.text ="${viewModel.countNewPosts} new posts"
                binding.newsButton.isVisible = true

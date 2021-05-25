@@ -2,7 +2,6 @@ package ru.netology.nmedia.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.PopupMenu
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
@@ -14,12 +13,14 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.view.loadCircleCrop
+import java.io.File
 
 interface OnInteractionListener {
     fun onLike(post: Post) {}
     fun onEdit(post: Post) {}
     fun onRemove(post: Post) {}
     fun onShare(post: Post) {}
+    fun onShowImage(post:Post){}
 
 }
 
@@ -48,13 +49,24 @@ class PostViewHolder(
             published.text = post.published.toString()
             content.text = post.content
             card.isVisible = !post.newPost
+            post.attachment?.let{
+                imageView.isVisible = true
+                Glide.with(imageView)
+                    .load(BuildConfig.BASE_URL  + "/media/" + post.attachment.url )
+                    .placeholder(R.drawable.ic_camera_24dp)
+                    .error(R.drawable.ic_error_100dp)
+                    .override(300,200)
+                    .timeout(10_000)
+                    .into(imageView)
+            }
+
 
             Glide.with(avatar)
                     .load(BuildConfig.BASE_URL  + "/avatars/" + post.authorAvatar )
                     .circleCrop()
                     .placeholder(R.drawable.ic_loading_100dp)
                     .error(R.drawable.ic_error_100dp)
-                    .timeout(15_000)
+                    .timeout(10_000)
                     .into(avatar)
             // в адаптере
             like.isChecked = post.likedByMe
@@ -86,6 +98,10 @@ class PostViewHolder(
 
             share.setOnClickListener {
                 onInteractionListener.onShare(post)
+            }
+
+            imageView.setOnClickListener {
+                onInteractionListener.onShowImage(post)
             }
 
         }
