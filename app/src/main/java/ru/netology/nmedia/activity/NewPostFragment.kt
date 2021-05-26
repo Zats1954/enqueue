@@ -56,7 +56,7 @@ class NewPostFragment : Fragment() {
                 ImagePicker.with(this)
                     .crop()
                     .compress(1024)
-                    .maxResultSize(1080, 1080)
+//                    .maxResultSize(1080, 1080)
                     .galleryOnly()
                     .galleryMimeTypes(arrayOf(
                         "image/png",
@@ -70,7 +70,7 @@ class NewPostFragment : Fragment() {
                     .crop()
                     .compress(1024)
                     .cameraOnly()
-                    .maxResultSize(1080, 1080)
+//                    .maxResultSize(1080, 1080)
                     .start(cameraRequestCode)
                 true
             }
