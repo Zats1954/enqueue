@@ -7,12 +7,9 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.api.PostsApi
 import ru.netology.nmedia.dao.PostDao
-import ru.netology.nmedia.dto.Attachment
-import ru.netology.nmedia.dto.Media
-import ru.netology.nmedia.dto.MediaUpload
+import ru.netology.nmedia.dto.*
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.model.ApiError
@@ -66,8 +63,6 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     override suspend fun saveWithAttachment(post: Post, upload: MediaUpload) {
         try {
             val media = upload(upload)
-//            println(media)
-            // TODO: add support for other types
             val postWithAttachment = post.copy(attachment = Attachment(media.id, AttachmentType.IMAGE))
             save(postWithAttachment)
         } catch (e: AppError) {
@@ -98,26 +93,37 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
         }
     }
 
-//    override suspend fun download(imageName: String): MediaUpload? {
-//        try {
-//            val response =  PostsApi.service.download(imageName)
-//                if (!response.isSuccessful) {
-//                    throw ApiError(response.code(), response.message())}
-//            return response.body() ?: throw ApiError(response.code(), response.message())
-//        } catch (e: IOException) {
-//            throw NetworkError
-//        } catch (e: Exception) {
-//            println(e.message)
-//            e.printStackTrace()
-//            throw UnknownError
-//        }
-//        return null
-//    }
-
-
-
     override suspend fun likeById(id: Long) {
        PostsApi.service.likeById(id)
         dao.likeById(id)
+    }
+
+    override suspend fun autorization(login: String, pass: String): Token {
+        try {
+            println("************** PostRepositoryImpl autoriz ${login} / ${pass}")
+            val response = PostsApi.service.autorization(login, pass)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+            return response.body() ?: throw ApiError(response.code(), response.message())
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
+
+    override suspend fun makeUser(login: String, pass: String, name:String): Token {
+        try {
+             val response = PostsApi.service.registration(login, pass, name)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+            return response.body() ?: throw ApiError(response.code(), response.message())
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
     }
 }

@@ -28,9 +28,10 @@
                 android:id="@+id/removePhoto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="60dp"
                 android:layout_gravity="center_horizontal|bottom"
+                android:gravity="bottom"
                 android:text="@string/remove" />
-
         </FrameLayout>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -38,7 +39,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="150dp"
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/nav_main"
         app:layout_constraintStart_toStartOf="parent">
@@ -46,14 +46,12 @@
         <EditText
             android:id="@+id/edit"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_gravity="top"
+            android:layout_height="60dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="0dp"
             android:background="@android:color/transparent"
-            android:gravity="start|top"
-            android:inputType="textMultiLine"
-            android:paddingBottom="20dp"
             android:hint="@string/input_text"
-            app:layout_anchor="@+id/ok"
+            android:inputType="textMultiLine"
             app:layout_anchorGravity="top|center" />
 
         <com.google.android.material.bottomappbar.BottomAppBar
@@ -61,8 +59,7 @@
             style="@style/Widget.MaterialComponents.BottomAppBar.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:gravity="start|bottom"/>
+            android:layout_gravity="bottom" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/ok"

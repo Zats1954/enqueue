@@ -5,10 +5,9 @@ import android.net.Uri
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
-
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
-import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
@@ -23,6 +22,7 @@ import java.io.IOException
 private val empty = Post(
     id = 0,
     content = "",
+    authorId = 0,
     authorAvatar = "404.png",
     author = "",
     likedByMe = false,
@@ -34,12 +34,26 @@ private val empty = Post(
 private val noPhoto = PhotoModel()
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
+
     private val repository: PostRepository =
         PostRepositoryImpl(AppDb.getInstance(application).postDao())
 
-    private val _data = MutableLiveData<FeedState>(FeedState.Success)
-    val data: LiveData<FeedState>
-        get() = _data
+    val data: LiveData<FeedState> = AppAuth.getInstance()
+              .authStateFlow
+              .flatMapLatest {(myId, _) ->
+                  repository.data
+                      .map{ posts ->
+                          FeedModel(
+                              posts.map{it.copy(ownedByMe = it.authorId == myId)},
+                              posts.isEmpty()
+                          )
+                          FeedState.Success
+                      }
+              }.asLiveData(Dispatchers.Default)
+
+    private val _dataState = MutableLiveData<FeedState>()
+    val dataState: LiveData<FeedState>
+      get() = _dataState
 
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
@@ -70,13 +84,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadPosts() {
         viewModelScope.launch {
-            _data.value = FeedState.Loading
+            _dataState.value = FeedState.Loading
             try {
                 repository.getAll()
-                _data.value = FeedState.Success
+                _dataState.value = FeedState.Success
             } catch (e: Exception) {
                 myError(e)
-                _data.value = FeedState.Error
+                _dataState.value = FeedState.Error
             }
         }
     }
@@ -93,9 +107,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                             repository.saveWithAttachment(it, MediaUpload(file))
                         }
                     }
-                    _data.value = FeedState.Success
+                    _dataState.value = FeedState.Success
                 } catch(e:Exception){
-                    _data.value = FeedState.Error
+                    _dataState.value = FeedState.Error
                 }
 
             }
@@ -120,10 +134,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 repository.likeById(id)
-                _data.value = FeedState.Success
+                _dataState.value = FeedState.Success
             } catch (e: Exception) {
                 myError(e)
-                _data.value = FeedState.Error
+                _dataState.value = FeedState.Error
             }
         }
     }
@@ -139,7 +153,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                     repository.removeById(id)
                 } catch (e: Exception) {
                     myError(e)
-                    _data.value = FeedState.Error
+                    _dataState.value = FeedState.Error
                 }
             }
         } catch (e: IOException) {
@@ -147,11 +161,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-
-
     private fun myError(e: Exception) {
         e.message?.let { it ->
-            _data.postValue(FeedState.Error)
+            _dataState.postValue(FeedState.Error)
             errorMessage = when (it) {
                 "500" -> "Ошибка сервера"
                 "404","HTTP 404 " -> "Страница/пост не найдены"
@@ -166,10 +178,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 repository.showNews()
             } catch (e: Exception) {
                 myError(e)
-                _data.value = FeedState.Error
+                _dataState.value = FeedState.Error
             }
         }
-
     }
 
     fun clearCountNews() {
@@ -180,12 +191,4 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun changePhoto(uri: Uri?, file: File?) {
         _photo.value = PhotoModel(uri, file)
     }
-
-//    fun download(imageName:String): File?{
-//        var file:File? =  null
-//        viewModelScope.launch {
-//          file = repository.download(imageName)?.file
-//        }
-//        return file
-//    }
 }

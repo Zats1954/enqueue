@@ -23,16 +23,6 @@ import java.io.File
 
 class ShowImageFragment : Fragment() {
 
-//    private val viewModel: PostViewModel by viewModels(
-//        ownerProducer = ::requireParentFragment
-//    )
-//private val size = {
-//    Point().also{
-//        (context?.getSystemService(WINDOW_SERVICE) as WindowManager)
-//            .getBounds()
-//    }
-//}
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -50,9 +40,6 @@ class ShowImageFragment : Fragment() {
             .override(2000,2000)
             .timeout(10_000)
             .into( binding.imagePost)
-
-//         val file = arguments?.getString("postImage")?.let { viewModel.download(it)}
-//        binding.imagePost.setImageBitmap(BitmapFactory.decodeStream(file?.inputStream()))
         return binding.root
     }
 }

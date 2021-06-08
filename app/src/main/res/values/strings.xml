@@ -26,4 +26,16 @@
     <string name="description_photo">Photo</string>
     <string name="remove">Remove</string>
     <string name="input_text">input text</string>
+    <string name="sign_in">signin</string>
+    <string name="sign_up">signup</string>
+    <string name="sign_out">signout</string>
+    <string name="enter_name">Enter name</string>
+    <string name="enter_login">Enter login</string>
+    <string name="wrong_pass">passwords don\'t match</string>
+    <string name="signIn">Sign In</string>
+    <string name="password">password</string>
+    <string name="login">login</string>
+    <string name="signUp">Sign Up</string>
+    <string name="name">Name</string>
+    <string name="repeat_password">repeat password</string>
 </resources>

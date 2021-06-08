@@ -10,8 +10,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
 import retrofit2.http.*
 import ru.netology.nmedia.BuildConfig
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dto.Media
-import ru.netology.nmedia.dto.MediaUpload
+import ru.netology.nmedia.dto.Token
 import ru.netology.nmedia.dto.Post
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -26,7 +27,16 @@ private val logging = HttpLoggingInterceptor().apply {
 }
 
 private val client = OkHttpClient.Builder()
-    .addInterceptor(logging)
+//    .addInterceptor(logging)
+    .addInterceptor { chain ->
+        AppAuth.getInstance().authStateFlow.value.token?.let{ token ->
+            val newRequest = chain.request().newBuilder()
+                .addHeader("Authorization", token)
+                .build()
+            return@addInterceptor chain.proceed(newRequest)
+        }
+        chain.proceed(chain.request())
+    }
     .connectTimeout(30, TimeUnit.SECONDS)
     .build()
 
@@ -57,9 +67,13 @@ interface PostApiService {
     @POST("media")
     suspend fun upload(@Part media: MultipartBody.Part): Response<Media>
 
+    @FormUrlEncoded
+    @POST("users/authentication")
+    suspend fun autorization(@Field("login") login: String, @Field("pass") pass: String): Response<Token>
 
-//    @POST("media/{imageFile}")
-//    suspend fun download(@Part ("imageFile") imageFile: String): Response<MediaUpload>
+    @FormUrlEncoded
+    @POST("users/registration")
+    suspend fun registration(@Field("login") login: String, @Field("pass") pass: String, @Field("name") name: String): Response<Token>
 }
 
 object PostsApi {

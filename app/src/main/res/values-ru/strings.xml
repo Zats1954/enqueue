@@ -27,4 +27,16 @@
     <string name="description_photo">Фото</string>
     <string name="remove">Удалить</string>
     <string name="input_text">Введите текст</string>
+    <string name="sign_in">Войти</string>
+    <string name="sign_up">Регистрация</string>
+    <string name="sign_out">Выйти</string>
+    <string name="enter_name">Ввести имя</string>
+    <string name="enter_login">Ввести login</string>
+    <string name="wrong_pass">пароли не совпадают</string>
+    <string name="signIn">Войти</string>
+    <string name="password">пароль</string>
+    <string name="login">login</string>
+    <string name="signUp">Регистрация</string>
+    <string name="name">Имя</string>
+    <string name="repeat_password">повторить пароль</string>
 </resources>

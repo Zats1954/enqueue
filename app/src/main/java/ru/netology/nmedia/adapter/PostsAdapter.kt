@@ -1,5 +1,6 @@
 package ru.netology.nmedia.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.PopupMenu
@@ -10,10 +11,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.view.loadCircleCrop
-import java.io.File
+
+
+
 
 interface OnInteractionListener {
     fun onLike(post: Post) {}
@@ -21,30 +25,32 @@ interface OnInteractionListener {
     fun onRemove(post: Post) {}
     fun onShare(post: Post) {}
     fun onShowImage(post:Post){}
-
 }
 
-class PostsAdapter(
-    private val onInteractionListener: OnInteractionListener,
 
-) : ListAdapter<Post, PostViewHolder>(PostDiffCallback()) {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
-        val binding = CardPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return PostViewHolder(binding, onInteractionListener)
-    }
 
-    override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        val post = getItem(position)
-        holder.bind(post)
-    }
+class PostsAdapter(private val onInteractionListener: OnInteractionListener) :
+           ListAdapter<Post, PostViewHolder>(PostDiffCallback()) {
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
+                val binding = CardPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                return PostViewHolder(binding, onInteractionListener)
+            }
+            override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
+                val post = getItem(position)
+                holder.bind(post)
+            }
 }
 
 class PostViewHolder(
     private val binding: CardPostBinding,
     private val onInteractionListener: OnInteractionListener,
 ) : RecyclerView.ViewHolder(binding.root) {
+
+    val id = AppAuth.getInstance().authStateFlow.value.id
+
     fun bind(post: Post) {
         binding.apply {
+            menu.isVisible =  if(post.authorId == id) true else false
             author.text = post.author
             published.text = post.published.toString()
             content.text = post.content
@@ -103,11 +109,8 @@ class PostViewHolder(
             imageView.setOnClickListener {
                 onInteractionListener.onShowImage(post)
             }
-
         }
     }
-
-
 }
 
 class PostDiffCallback : DiffUtil.ItemCallback<Post>() {

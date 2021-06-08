@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
-import java.io.File
+import ru.netology.nmedia.dto.Token
 
 interface PostRepository {
     var countNew: Int
@@ -17,5 +17,6 @@ interface PostRepository {
     suspend fun showNews()
     suspend fun saveWithAttachment(post: Post, upload: MediaUpload)
     suspend fun upload(upload: MediaUpload): Media
-//    suspend fun download(imageName: String): MediaUpload?
+    suspend fun autorization(login: String, pass: String): Token
+    suspend fun makeUser(login: String, pass: String, name: String): Token
 }
