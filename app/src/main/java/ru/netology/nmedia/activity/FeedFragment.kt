@@ -37,7 +37,6 @@ class FeedFragment : Fragment() {
                 val bundle = Bundle()
                 bundle.putParcelable("post",post)
                 findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, bundle)
-//                viewModel.save()
             }
 
             override fun onLike(post: Post) {

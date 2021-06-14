@@ -98,12 +98,6 @@ class NewPostFragment : Fragment() {
                            val imagePath = "${BuildConfig.BASE_URL}/media/${post.attachment?.url}"
                            viewModel.changePhoto(Uri.parse(imagePath),File(imagePath))
                         } ?: viewModel.changePhoto(null,null)
-                    Glide.with(binding.root.context)
-                        .load( BuildConfig.BASE_URL  + "/media/" +  post.attachment?.url )
-                        .placeholder(R.drawable.ic_camera_24dp)
-                        .error(R.drawable.ic_error_100dp)
-                        .timeout(10_000)
-                        .into(binding.photo)
             }
         }
 //-------------------------------------------------------

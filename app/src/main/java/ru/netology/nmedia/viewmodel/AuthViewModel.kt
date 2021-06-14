@@ -31,8 +31,6 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         get() = _postCreated
 
     private val _dataState = MutableLiveData<FeedState>()
-//    val dataState: LiveData<FeedState>
-//        get() = _dataState
 
     fun loadPosts() {
         viewModelScope.launch {

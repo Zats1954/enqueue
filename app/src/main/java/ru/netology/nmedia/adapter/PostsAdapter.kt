@@ -1,6 +1,5 @@
 package ru.netology.nmedia.adapter
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.PopupMenu
@@ -12,11 +11,8 @@ import com.bumptech.glide.Glide
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
-import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
-
-
 
 
 interface OnInteractionListener {

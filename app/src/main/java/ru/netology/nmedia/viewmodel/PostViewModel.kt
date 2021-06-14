@@ -6,12 +6,12 @@ import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.model.PhotoModel
@@ -19,9 +19,6 @@ import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.File
 import java.io.IOException
-
-
-
 
 private val noPhoto = PhotoModel()
 
@@ -82,6 +79,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
            loadPosts()
+                posts.asLiveData().value?.posts?.map{
+                    it.copy(newPost = false)
+                }
          }
 
     fun loadPosts() {
@@ -115,26 +115,26 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 _postCreated.value = Unit
             }
             edited.value = empty
-            _photo.value = PhotoModel()
         }
     }
 
     fun edit(post: Post) {
         edited.value = post
        post.attachment?.let{
-//           val pth = "${BuildConfig.BASE_URL}/media/${post.attachment?.url}"
         changePhoto(Uri.parse(post.attachment?.url), File(post.attachment?.url) )}
     }
 
     fun changePost(post: Post) {
         val text = post.content.trim()
+        var newAttachment: Attachment? = null
+        if(photo.value != noPhoto){
+            newAttachment = Attachment(photo.value?.uri.toString(), AttachmentType.IMAGE)}
         if (edited.value?.content == text
             && edited.value?.attachment == post.attachment) {
             return
         }
-        edited.value = edited.value?.copy(content = text, attachment = post.attachment)
-        post.attachment?.let{changePhoto(Uri.parse(post.attachment.url),File(post.attachment.url))
-                             } ?: changePhoto(null,null)
+        edited.value = edited.value?.copy(content = text, attachment = newAttachment)
+
     }
 
     fun likeById(id: Long) {

@@ -16,7 +16,6 @@ import ru.netology.nmedia.model.ApiError
 import ru.netology.nmedia.model.AppError
 import ru.netology.nmedia.model.UnknownError
 import ru.netology.nmedia.model.NetworkError
-import java.io.File
 import java.io.IOException
 
 class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
