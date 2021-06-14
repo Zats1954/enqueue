@@ -121,8 +121,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun edit(post: Post) {
         edited.value = post
-       post.attachment?.let{ val pth = "${BuildConfig.BASE_URL}/media/${post.attachment?.url}"
-        changePhoto(Uri.parse(pth), File(post.attachment?.url) )}
+       post.attachment?.let{
+//           val pth = "${BuildConfig.BASE_URL}/media/${post.attachment?.url}"
+        changePhoto(Uri.parse(post.attachment?.url), File(post.attachment?.url) )}
     }
 
     fun changePost(post: Post) {
