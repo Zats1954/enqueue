@@ -13,8 +13,8 @@ import androidx.navigation.fragment.findNavController
 //import com.google.android.gms.common.GoogleApiAvailability
 //import com.google.firebase.iid.FirebaseInstanceId
 import ru.netology.nmedia.R
-import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.dto.Token
 import ru.netology.nmedia.viewmodel.AuthViewModel
 
@@ -30,19 +30,19 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
                 return@let
             }
 
-            val text = it.getStringExtra(Intent.EXTRA_TEXT)
-            if (text?.isNotBlank() != true) {
-                return@let
-            }
-
-            intent.removeExtra(Intent.EXTRA_TEXT)
-            findNavController(R.id.nav_host_fragment)
-                .navigate(
-                    R.id.action_feedFragment_to_newPostFragment,
-                    Bundle().apply {
-                        textArg = text
-                    }
-                )
+//            val post = it.getParcelableExtra<Post>(Intent.EXTRA_TEXT)
+//            if (post?.content?.isNotBlank() != true) {
+//                return@let
+//            }
+//
+//            intent.removeExtra(Intent.EXTRA_TEXT)
+//            findNavController(R.id.nav_host_fragment)
+//                .navigate(
+//                    R.id.action_feedFragment_to_newPostFragment,
+//                    Bundle().apply {
+//                        postArg = post
+//                    }
+//                )
         }
 
         viewModel.data.observe(this){

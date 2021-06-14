@@ -6,8 +6,10 @@ import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
+import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
@@ -19,21 +21,23 @@ import java.io.File
 import java.io.IOException
 
 
-private val empty = Post(
-    id = 0,
-    content = "",
-    authorId = 0,
-    authorAvatar = "404.png",
-    author = "",
-    likedByMe = false,
-    likes = 0,
-    published = System.currentTimeMillis(),
-    newPost = false
-)
+
 
 private val noPhoto = PhotoModel()
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
+    val empty = Post(
+        id = 0,
+        content = "",
+        authorId = 0,
+        authorAvatar = "404.png",
+        author = "",
+        likedByMe = false,
+        likes = 0,
+        published = System.currentTimeMillis(),
+        newPost = false
+    )
+
 
     private val repository: PostRepository =
         PostRepositoryImpl(AppDb.getInstance(application).postDao())
@@ -67,13 +71,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         val lastId = it.firstOrNull()?.id ?: 0L
         val newPosts = repository.getNewerCount(lastId)
         repository.countNew.also { countNewPosts = it }
-        println("countNewPosts = ${countNewPosts} --> ${System.currentTimeMillis()}")
         newPosts
     }.catch{e-> e.printStackTrace()}
      .asLiveData(Dispatchers.Default)
 
     val edited = MutableLiveData(empty)
-
     var posts: Flow<FeedModel> = repository.data.map(::FeedModel)
     var errorMessage: String = ""
     var countNewPosts :Int = 0
@@ -99,7 +101,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun save() {
         viewModelScope.launch {
             edited.value?.let {
-                _postCreated.value = Unit
                 try{
                     when(_photo.value){
                         noPhoto -> repository.save(it)
@@ -111,23 +112,28 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 } catch(e:Exception){
                     _dataState.value = FeedState.Error
                 }
-
+                _postCreated.value = Unit
             }
             edited.value = empty
+            _photo.value = PhotoModel()
         }
     }
 
     fun edit(post: Post) {
         edited.value = post
-
+       post.attachment?.let{ val pth = "${BuildConfig.BASE_URL}/media/${post.attachment?.url}"
+        changePhoto(Uri.parse(pth), File(post.attachment?.url) )}
     }
 
-    fun changeContent(content: String) {
-        val text = content.trim()
-        if (edited.value?.content == text) {
+    fun changePost(post: Post) {
+        val text = post.content.trim()
+        if (edited.value?.content == text
+            && edited.value?.attachment == post.attachment) {
             return
         }
-        edited.value = edited.value?.copy(content = text)
+        edited.value = edited.value?.copy(content = text, attachment = post.attachment)
+        post.attachment?.let{changePhoto(Uri.parse(post.attachment.url),File(post.attachment.url))
+                             } ?: changePhoto(null,null)
     }
 
     fun likeById(id: Long) {

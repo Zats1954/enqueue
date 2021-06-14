@@ -1,7 +1,10 @@
 package ru.netology.nmedia.dto
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 import ru.netology.nmedia.enumeration.AttachmentType
 
+@Parcelize
 data class Post(
     val id: Long,
     val authorId: Long,
@@ -14,9 +17,10 @@ data class Post(
     val newPost: Boolean = true,
     val ownedByMe: Boolean = false,
     val attachment: Attachment? =null
-)
+): Parcelable
 
+@Parcelize
 data class Attachment(
     val url: String,
     val type: AttachmentType,
-)
+): Parcelable

@@ -8,23 +8,24 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
 import ru.netology.nmedia.util.AndroidUtils
-import ru.netology.nmedia.util.StringArg
+import ru.netology.nmedia.util.PostArg
 import ru.netology.nmedia.viewmodel.PostViewModel
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
+import ru.netology.nmedia.BuildConfig
+import ru.netology.nmedia.dto.Attachment
+import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.enumeration.AttachmentType
 import java.io.File
 
 class NewPostFragment : Fragment() {
 
     private val photoRequestCode = 1
     private val cameraRequestCode = 2
-
-    companion object {
-        var Bundle.textArg: String? by StringArg
-    }
 
     private val viewModel: PostViewModel by viewModels(
         ownerProducer = ::requireParentFragment
@@ -45,7 +46,9 @@ class NewPostFragment : Fragment() {
         return when (item.itemId) {
             R.id.save -> {
                 fragmentBinding?.let {
-                    viewModel.changeContent(it.edit.text.toString())
+                    arguments?.getParcelable<Post>("post")?.let{post ->
+                        viewModel.changePost(post.copy(content = it.edit.text.toString()))
+                    }
                     viewModel.save()
                     AndroidUtils.hideKeyboard(requireView())
                 }
@@ -87,14 +90,29 @@ class NewPostFragment : Fragment() {
             container,
             false
         )
-
+// заполнение полей формы для редактирования
+        arguments?.getParcelable<Post>("post")?.let{post ->
+            if(post.id !=0L){
+                    binding.edit.setText(post.content)
+                    post.attachment?.let{
+                           viewModel.changePhoto(Uri.parse(post.attachment.url),File(post.attachment.url))
+                        } ?: viewModel.changePhoto(null,null)
+//                    Glide.with(binding.root.context)
+//                        .load( BuildConfig.BASE_URL  + "/media/" +  post.attachment?.url )
+//                        .placeholder(R.drawable.ic_camera_24dp)
+//                        .error(R.drawable.ic_error_100dp)
+//                        .timeout(10_000)
+//                        .into(binding.photo)
+            }
+        }
+//-------------------------------------------------------
         fragmentBinding = binding
 
-        arguments?.textArg
-            ?.let(binding.edit::setText)
 
         binding.ok.setOnClickListener {
-            viewModel.changeContent(binding.edit.text.toString())
+            arguments?.getParcelable<Post>("post")?.let{
+                viewModel.changePost(it.copy(content = binding.edit.text.toString()))
+            }
             viewModel.save()
             AndroidUtils.hideKeyboard(requireView())
         }
@@ -106,6 +124,9 @@ class NewPostFragment : Fragment() {
 
         binding.removePhoto.setOnClickListener {
             viewModel.changePhoto(null, null)
+            arguments?.getParcelable<Post>("post")?.let{
+                viewModel.changePost(it.copy(attachment = null))
+            }
         }
 
         viewModel.photo.observe(viewLifecycleOwner) {
@@ -113,9 +134,9 @@ class NewPostFragment : Fragment() {
                 binding.photoContainer.visibility = View.GONE
                 return@observe
             }
-
             binding.photoContainer.visibility = View.VISIBLE
             binding.photo.setImageURI(it.uri)
+
         }
         return binding.root
     }

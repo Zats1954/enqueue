@@ -31,8 +31,13 @@ class FeedFragment : Fragment() {
         val binding = FragmentFeedBinding.inflate(inflater, container, false)
 
         val adapter = PostsAdapter(object : OnInteractionListener {
+
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
+                val bundle = Bundle()
+                bundle.putParcelable("post",post)
+                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, bundle)
+//                viewModel.save()
             }
 
             override fun onLike(post: Post) {
@@ -99,7 +104,9 @@ class FeedFragment : Fragment() {
         }
 
         binding.fab.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            val bundle = Bundle()
+            bundle.putParcelable("post",viewModel.empty)
+            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, bundle)
         }
 
         binding.newsButton.setOnClickListener {
@@ -110,7 +117,6 @@ class FeedFragment : Fragment() {
         }
 
         viewModel.newer.observe(viewLifecycleOwner){
-//            println(" summ new posts ${ viewModel.countNewPosts} --> ${System.currentTimeMillis()} ")
            if(viewModel.countNewPosts > 0){
                binding.newsButton.text ="${viewModel.countNewPosts} new posts"
                binding.newsButton.isVisible = true

@@ -100,7 +100,6 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun autorization(login: String, pass: String): Token {
         try {
-            println("************** PostRepositoryImpl autoriz ${login} / ${pass}")
             val response = PostsApi.service.autorization(login, pass)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
