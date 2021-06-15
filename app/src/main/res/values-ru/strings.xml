@@ -39,4 +39,5 @@
     <string name="signUp">Регистрация</string>
     <string name="name">Имя</string>
     <string name="repeat_password">повторить пароль</string>
+    <string name="authError">ошибка входа</string>
 </resources>

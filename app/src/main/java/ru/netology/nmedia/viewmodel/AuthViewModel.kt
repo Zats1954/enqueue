@@ -26,12 +26,13 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: PostRepository =
         PostRepositoryImpl(AppDb.getInstance(application).postDao())
 
-    private val _postCreated = SingleLiveEvent<Unit>()
-    val postCreated: LiveData<Unit>
-        get() = _postCreated
+    private val _authCreated = SingleLiveEvent<Unit>()
+    val authCreated: LiveData<Unit>
+        get() = _authCreated
 
     private val _dataState = MutableLiveData<FeedState>()
-
+    val dataState: LiveData<FeedState>
+        get() = _dataState
     fun loadPosts() {
         viewModelScope.launch {
             _dataState.value = FeedState.Loading
@@ -85,6 +86,6 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun save() {
-        _postCreated.value = Unit
+        _authCreated.value = Unit
     }
 }

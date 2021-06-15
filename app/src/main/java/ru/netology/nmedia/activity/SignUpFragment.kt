@@ -8,11 +8,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.github.dhaval2404.imagepicker.ImagePicker
+import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentSignUpBinding
-import ru.netology.nmedia.dto.Token
+import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.util.AndroidUtils
-import ru.netology.nmedia.util.AuthArg
 import ru.netology.nmedia.viewmodel.AuthViewModel
 
 class SignUpFragment: Fragment() {
@@ -45,7 +46,7 @@ class SignUpFragment: Fragment() {
             }
         }
 
-        viewModel.postCreated.observe(viewLifecycleOwner) {
+        viewModel.authCreated.observe(viewLifecycleOwner) {
             viewModel.loadPosts()
             findNavController().navigateUp()
         }

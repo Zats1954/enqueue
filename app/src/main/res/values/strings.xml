@@ -38,4 +38,5 @@
     <string name="signUp">Sign Up</string>
     <string name="name">Name</string>
     <string name="repeat_password">repeat password</string>
+    <string name="authError">wrong authentification</string>
 </resources>
