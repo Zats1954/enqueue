@@ -23,6 +23,9 @@ import ru.netology.nmedia.enumeration.AttachmentType
 import java.io.File
 
 class NewPostFragment : Fragment() {
+    companion object {
+        var Bundle.postArg: Post? by PostArg
+    }
 
     private val photoRequestCode = 1
     private val cameraRequestCode = 2

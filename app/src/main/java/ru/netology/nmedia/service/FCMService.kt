@@ -10,12 +10,11 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
 import kotlin.random.Random
 
 
 class FCMService : FirebaseMessagingService() {
-    private val action = "action"
-    private val content = "content"
     private val channelId = "remote"
     private val gson = Gson()
 
@@ -34,44 +33,39 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
-
-        message.data[action]?.let {
-           when (Action.valueOf(it)) {
-              Action.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
-           }
+        message.data["content"]?.let {
+             val info =  gson.fromJson(it, Info::class.java)
+            info.recipientId?.let{id ->
+              if(id != AppAuth.getInstance().authStateFlow.value.id) {
+                  AppAuth.getInstance().sendPushToken()}
+              else {
+                   handleMessage(gson.fromJson(message.data["content"], Info::class.java))}
+            }
+            ?: handleMessage(gson.fromJson(message.data["content"], Info::class.java))
         }
     }
 
-    override fun onNewToken(token: String) {
-        println(token)
-    }
-
-    private fun handleLike(content: Like) {
+    private fun handleMessage(info: Info?) {
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(
-                getString(
-                    R.string.notification_user_liked,
-                    content.userName,
-                    content.postAuthor,
-                )
-            )
+            .setContentTitle("NMedia server notification")
+            .setContentText(info?.content)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
 
         NotificationManagerCompat.from(this)
             .notify(Random.nextInt(100_000), notification)
     }
+
+    override fun onNewToken(token: String) {
+        println("FCM token")
+        println(token)
+        AppAuth.getInstance().sendPushToken(token)
+    }
 }
 
-enum class Action {
-    LIKE,
-}
-
-data class Like(
-    val userId: Long,
-    val userName: String,
-    val postId: Long,
-    val postAuthor: String,
+data class Info(
+    val recipientId: Long?,
+    val content: String
 )
 
