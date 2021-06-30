@@ -29,8 +29,6 @@ private val client = OkHttpClient.Builder()
 //    .addInterceptor(logging)
     .addInterceptor { chain ->
         AppAuth.getInstance().authStateFlow.value.token?.let{ token ->
-            println("Auth id  ${AppAuth.getInstance().authStateFlow.value.id}")
-            println("Auth token ${token}")
             val newRequest = chain.request().newBuilder()
                 .addHeader("Authorization", token)
                 .build()

@@ -1,16 +1,24 @@
 package ru.netology.nmedia.repository
 
 
+import android.net.Uri
+import androidx.core.net.toFile
+import androidx.core.net.toUri
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.nmedia.api.PostsApi
 import ru.netology.nmedia.dao.PostDao
+import ru.netology.nmedia.dao.PostWorkDao
 import ru.netology.nmedia.dto.*
 import ru.netology.nmedia.entity.PostEntity
+import ru.netology.nmedia.entity.PostWorkEntity
+import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.model.ApiError
 import ru.netology.nmedia.model.AppError
@@ -23,7 +31,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
         get() = field
         set(value) {field = value}
 
-    override val data = dao.getAll().map { it.map(PostEntity::toDto) }
+    override val data = dao.getAll().map(List<PostEntity>::toDto).flowOn(Dispatchers.Default)
 
     override suspend fun getAll() {
         val all = PostsApi.service.getAll()
@@ -33,7 +41,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
                       .map(PostEntity.Companion::fromDto))
     }
 
-    override fun getNewerCount(id:Long): Flow<Int>  = flow{
+    override fun getNewerCount(id:Long): Flow<Int> = flow{
         while(true) {
             try{
                 val newer = PostsApi.service.getNewer(id).map(PostEntity.Companion::fromDto)

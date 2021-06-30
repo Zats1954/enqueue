@@ -2,6 +2,7 @@ package ru.netology.nmedia.viewmodel
 
 import android.app.Application
 import android.net.Uri
+import androidx.core.net.toFile
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -37,24 +38,26 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
 
     private val repository: PostRepository =
-        PostRepositoryImpl(AppDb.getInstance(application).postDao())
+        PostRepositoryImpl(
+            AppDb.getInstance(application).postDao()
+        )
 
     val data: LiveData<FeedState> = AppAuth.getInstance()
-              .authStateFlow
-              .flatMapLatest {(myId, _) ->
-                  repository.data
-                      .map{ posts ->
-                          FeedModel(
-                              posts.map{it.copy(ownedByMe = it.authorId == myId)},
-                              posts.isEmpty()
-                          )
-                          FeedState.Success
-                      }
-              }.asLiveData(Dispatchers.Default)
+        .authStateFlow
+        .flatMapLatest { (myId, _) ->
+            repository.data
+                .map { posts ->
+                    FeedModel(
+                        posts.map { it.copy(ownedByMe = it.authorId == myId) },
+                        posts.isEmpty()
+                    )
+                    FeedState.Success
+                }
+        }.asLiveData(Dispatchers.Default)
 
     private val _dataState = MutableLiveData<FeedState>()
     val dataState: LiveData<FeedState>
-      get() = _dataState
+        get() = _dataState
 
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
@@ -64,25 +67,25 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val photo: LiveData<PhotoModel>
         get() = _photo
 
-    val newer: LiveData<Int> =  repository.data.flatMapLatest {
+    val newer: LiveData<Int> = repository.data.flatMapLatest {
         val lastId = it.firstOrNull()?.id ?: 0L
         val newPosts = repository.getNewerCount(lastId)
         repository.countNew.also { countNewPosts = it }
         newPosts
-    }.catch{e-> e.printStackTrace()}
-     .asLiveData(Dispatchers.Default)
+    }.catch { e -> e.printStackTrace() }
+        .asLiveData(Dispatchers.Default)
 
     val edited = MutableLiveData(empty)
     var posts: Flow<FeedModel> = repository.data.map(::FeedModel)
     var errorMessage: String = ""
-    var countNewPosts :Int = 0
+    var countNewPosts: Int = 0
 
     init {
-           loadPosts()
-                posts.asLiveData().value?.posts?.map{
-                    it.copy(newPost = false)
-                }
-         }
+        loadPosts()
+        posts.asLiveData().value?.posts?.map {
+            it.copy(newPost = false)
+        }
+    }
 
     fun loadPosts() {
         viewModelScope.launch {
@@ -99,38 +102,42 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun save() {
-        viewModelScope.launch {
-            edited.value?.let {
-                try{
-                    when(_photo.value){
+        edited.value?.let {
+            viewModelScope.launch {
+                try {
+                    when (_photo.value) {
                         noPhoto -> repository.save(it)
-                        else -> _photo.value?.file?.let{ file ->
+                        else -> _photo.value?.file?.let { file ->
                             repository.saveWithAttachment(it, MediaUpload(file))
                         }
                     }
                     _dataState.value = FeedState.Success
-                } catch(e:Exception){
+                } catch (e: Exception) {
                     _dataState.value = FeedState.Error
                 }
                 _postCreated.value = Unit
             }
             edited.value = empty
+            _photo.value = noPhoto
         }
     }
 
     fun edit(post: Post) {
         edited.value = post
-       post.attachment?.let{
-        changePhoto(Uri.parse(post.attachment?.url), File(post.attachment?.url) )}
+//        post.attachment?.let {
+//            changePhoto(Uri.parse(post.attachment?.url), File(post.attachment?.url))
+//        }
     }
 
     fun changePost(post: Post) {
         val text = post.content.trim()
         var newAttachment: Attachment? = null
-        if(photo.value != noPhoto){
-            newAttachment = Attachment(photo.value?.uri.toString(), AttachmentType.IMAGE)}
+        if (photo.value != noPhoto) {
+            newAttachment = Attachment(photo.value?.uri.toString(), AttachmentType.IMAGE)
+        }
         if (edited.value?.content == text
-            && edited.value?.attachment == post.attachment) {
+            && edited.value?.attachment == post.attachment
+        ) {
             return
         }
         edited.value = edited.value?.copy(content = text, attachment = newAttachment)
@@ -173,7 +180,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             _dataState.postValue(FeedState.Error)
             errorMessage = when (it) {
                 "500" -> "Ошибка сервера"
-                "404","HTTP 404 " -> "Страница/пост не найдены"
+                "404", "HTTP 404 " -> "Страница/пост не найдены"
                 else -> "Ошибка соединения"
             }
         }

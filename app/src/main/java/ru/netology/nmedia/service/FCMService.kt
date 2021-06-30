@@ -36,7 +36,7 @@ class FCMService : FirebaseMessagingService() {
         message.data["content"]?.let {
              val info =  gson.fromJson(it, Info::class.java)
             info.recipientId?.let{id ->
-              if(id != AppAuth.getInstance().authStateFlow.value.id) {
+              if(id != AppAuth.getInstance().authStateFlow.value.id || id == 0L) {
                   AppAuth.getInstance().sendPushToken()}
               else {
                    handleMessage(gson.fromJson(message.data["content"], Info::class.java))}
