@@ -1,10 +1,10 @@
-name: CI COROUTINE
+name: CI PUSHTOKEN
 
 on:
   push:
-    branches: [ coroutine ]
+    branches: [ pushToken ]
   pull_request:
-    branches: [ coroutine ]
+    branches: [ pushToken ]
 
 jobs:
   build:
@@ -18,7 +18,6 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew build --info
-
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v2
         with:
