@@ -24,7 +24,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private var errorMessage: String = ""
 
     private val repository: PostRepository =
-        PostRepositoryImpl(AppDb.getInstance(application).postDao())
+        PostRepositoryImpl(AppDb.getInstance(application).postDao(),
+            AppDb.getInstance(application).postWorkDao())
 
     private val _authCreated = SingleLiveEvent<Unit>()
     val authCreated: LiveData<Unit>

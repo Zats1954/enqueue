@@ -18,8 +18,9 @@ data class PostEntity(
     val published: Long,
     val likedByMe: Boolean,
     val likes: Int = 0,
-    val ownedByMe: Boolean = false,
     var newPost: Boolean = true,
+    val ownedByMe: Boolean = false,
+
     @Embedded
     var attachment: AttachmentEmbeddable?,
 ) {

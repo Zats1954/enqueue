@@ -2,7 +2,9 @@ package ru.netology.nmedia.viewmodel
 
 import android.app.Application
 import android.net.Uri
+import androidx.core.net.toFile
 import androidx.lifecycle.*
+import androidx.work.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -17,6 +19,7 @@ import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
+import ru.netology.nmedia.work.SavePostWorker
 import java.io.File
 import java.io.IOException
 
@@ -37,7 +40,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
 
     private val repository: PostRepository =
-        PostRepositoryImpl(AppDb.getInstance(application).postDao())
+        PostRepositoryImpl(AppDb.getInstance(application).postDao(),
+            AppDb.getInstance(context = application).postWorkDao())
+
+    private val workManager: WorkManager =
+        WorkManager.getInstance(application)
 
     val data: LiveData<FeedState> = AppAuth.getInstance()
               .authStateFlow
@@ -97,17 +104,32 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun refreshPosts() = viewModelScope.launch {
+        try {
+            _dataState.value = FeedState.Refreshing
+            repository.getAll()
+            _dataState.value = FeedState.Success
+        } catch (e: Exception) {
+            _dataState.value = FeedState.Error
+        }
+    }
 
     fun save() {
         viewModelScope.launch {
             edited.value?.let {
                 try{
-                    when(_photo.value){
-                        noPhoto -> repository.save(it)
-                        else -> _photo.value?.file?.let{ file ->
-                            repository.saveWithAttachment(it, MediaUpload(file))
-                        }
-                    }
+                    val id = repository.saveWork(
+                        it, _photo.value?.uri?.let { MediaUpload(it.toFile()) }
+                    )
+                    val data = workDataOf(SavePostWorker.postKey to id)
+                    val constraints = Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
+                    val request = OneTimeWorkRequestBuilder<SavePostWorker>()
+                        .setInputData(data)
+                        .setConstraints(constraints)
+                        .build()
+                    workManager.enqueue(request)
                     _dataState.value = FeedState.Success
                 } catch(e:Exception){
                     _dataState.value = FeedState.Error
@@ -115,6 +137,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 _postCreated.value = Unit
             }
             edited.value = empty
+            _photo.value = noPhoto
         }
     }
 

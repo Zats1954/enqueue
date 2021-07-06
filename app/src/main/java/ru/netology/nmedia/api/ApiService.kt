@@ -50,13 +50,13 @@ private val retrofit = Retrofit.Builder()
 interface ApiService {
 
     @GET("posts")
-    suspend fun getAll(): List<Post>
+    suspend fun getAll(): Response<List<Post>>
 
     @GET("posts/{id}/newer")
     suspend fun getNewer(@Path("id") id: Long): List<Post>
 
     @POST("posts")
-    suspend fun save(@Body post: Post): Post
+    suspend fun save(@Body post: Post): Response<Post>
 
     @DELETE("posts/{id}")
     suspend fun removeById(@Path("id") id: Long)

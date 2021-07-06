@@ -1,11 +1,9 @@
 package ru.netology.nmedia.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.entity.PostEntity
+import ru.netology.nmedia.enumeration.AttachmentType
 
 @Dao
 interface PostDao {
@@ -45,3 +43,9 @@ interface PostDao {
     suspend fun countNews(): Int
 }
 
+class Converters {
+    @TypeConverter
+    fun toAttachmentType(value: String) = enumValueOf<AttachmentType>(value)
+    @TypeConverter
+    fun fromAttachmentType(value: AttachmentType) = value.name
+}
