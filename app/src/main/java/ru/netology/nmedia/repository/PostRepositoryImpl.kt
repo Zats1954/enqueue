@@ -35,6 +35,7 @@ class PostRepositoryImpl(private val dao: PostDao,
 
     override suspend fun getAll() {
         try{
+        dao.removeAll()
         val response = PostsApi.service.getAll()
         if (!response.isSuccessful) {
             throw ApiError(response.code(), response.message())
@@ -46,6 +47,10 @@ class PostRepositoryImpl(private val dao: PostDao,
     } catch (e: Exception) {
         throw UnknownError
     }
+    }
+
+    override suspend fun getById(id: Long): Post {
+        return dao.getById(id).toDto()
     }
 
     override fun getNewerCount(id:Long): Flow<Int>  = flow{
@@ -65,10 +70,16 @@ class PostRepositoryImpl(private val dao: PostDao,
        return  PostsApi.service.save(post)
       }
 
-    override suspend fun removeById(id: Long) {
-        PostsApi.service.removeById(id)
+    override suspend fun removeById(id: Long):Response<Unit> {
+        val response = PostsApi.service.removeById(id)
         dao.removeById(id)
+        return response
     }
+
+//    override suspend fun newRemoveById(id: Long) {
+//        PostsApi.service.removeById(id)
+//        dao.removeById(id)
+//    }
 
     override suspend fun showNews() {
        dao.showNews()

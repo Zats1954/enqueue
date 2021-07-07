@@ -19,6 +19,7 @@ import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
+import ru.netology.nmedia.work.RemovePostWorker
 import ru.netology.nmedia.work.SavePostWorker
 import java.io.File
 import java.io.IOException
@@ -180,7 +181,15 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             }
             viewModelScope.launch {
                 try {
-                    repository.removeById(id)
+                    val data = workDataOf(RemovePostWorker.postKey to id)
+                    val constraints = Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
+                    val request = OneTimeWorkRequestBuilder<RemovePostWorker>()
+                        .setInputData(data)
+                        .setConstraints(constraints)
+                        .build()
+                    workManager.enqueue(request)
                 } catch (e: Exception) {
                     myError(e)
                     _dataState.value = FeedState.Error
