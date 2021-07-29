@@ -37,11 +37,12 @@ class FeedFragment : Fragment() {
                 val bundle = Bundle()
                 bundle.putParcelable("post",post)
                 findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, bundle)
+                viewModel.removeById(post.id)
+                viewModel.refreshPosts()
             }
 
             override fun onLike(post: Post) {
                 viewModel.likeById(post.id)
-
             }
 
             override fun onRemove(post: Post) {
@@ -68,14 +69,9 @@ class FeedFragment : Fragment() {
             }
         })
 
-
         binding.list.adapter = adapter
 
-        viewModel.posts.asLiveData().observe(viewLifecycleOwner, {
-            adapter.submitList(it.posts)
-            binding.emptyText.isVisible = it.empty
-        })
-        viewModel.data.observe(viewLifecycleOwner){state ->
+        viewModel.dataState.observe(viewLifecycleOwner){state ->
             when(state){
                 FeedState.Loading -> {
                     binding.progress.isVisible = true
@@ -95,6 +91,11 @@ class FeedFragment : Fragment() {
                     binding.newsButton.isVisible = false
                 }
             }
+        }
+
+        viewModel.data.observe(viewLifecycleOwner) {state ->
+            adapter.submitList(state.posts)
+            binding.emptyText.isVisible = state.empty
         }
 
         binding.retryButton.setOnClickListener {

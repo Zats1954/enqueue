@@ -41,28 +41,31 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
 
     private val repository: PostRepository =
-        PostRepositoryImpl(AppDb.getInstance(application).postDao(),
-            AppDb.getInstance(context = application).postWorkDao())
+        PostRepositoryImpl(
+            AppDb.getInstance(application).postDao(),
+            AppDb.getInstance(context = application).postWorkDao()
+        )
 
     private val workManager: WorkManager =
         WorkManager.getInstance(application)
 
-    val data: LiveData<FeedState> = AppAuth.getInstance()
-              .authStateFlow
-              .flatMapLatest {(myId, _) ->
-                  repository.data
-                      .map{ posts ->
-                          FeedModel(
-                              posts.map{it.copy(ownedByMe = it.authorId == myId)},
-                              posts.isEmpty()
-                          )
-                          FeedState.Success
-                      }
-              }.asLiveData(Dispatchers.Default)
+    val data: LiveData<FeedModel> = AppAuth.getInstance()
+        .authStateFlow
+        .flatMapLatest { (myId, _) ->
+            val answer = repository.data
+                .map { posts ->
+                    FeedModel(
+                        posts.map { it.copy(ownedByMe = it.authorId == myId) },
+                        posts.isEmpty()
+                    )}
+                    FeedState.Success
+
+            answer
+        }.asLiveData(Dispatchers.Default)
 
     private val _dataState = MutableLiveData<FeedState>()
     val dataState: LiveData<FeedState>
-      get() = _dataState
+        get() = _dataState
 
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
@@ -72,25 +75,27 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val photo: LiveData<PhotoModel>
         get() = _photo
 
-    val newer: LiveData<Int> =  repository.data.flatMapLatest {
+    val newer: LiveData<Int> = repository.data.flatMapLatest {
         val lastId = it.firstOrNull()?.id ?: 0L
         val newPosts = repository.getNewerCount(lastId)
-        repository.countNew.also { countNewPosts = it }
-        newPosts
-    }.catch{e-> e.printStackTrace()}
-     .asLiveData(Dispatchers.Default)
+        countNewPosts = repository.countNew
+        if (lastId == 0L)
+            flowOf(0)
+        else
+            newPosts
+    }.catch { e -> e.printStackTrace() }
+        .asLiveData(Dispatchers.Default)
 
     val edited = MutableLiveData(empty)
-    var posts: Flow<FeedModel> = repository.data.map(::FeedModel)
     var errorMessage: String = ""
-    var countNewPosts :Int = 0
+    var countNewPosts: Int = 0
 
     init {
-           loadPosts()
-                posts.asLiveData().value?.posts?.map{
-                    it.copy(newPost = false)
-                }
-         }
+        loadPosts()
+        viewModelScope.launch {
+            repository.showNews()
+        }
+    }
 
     fun loadPosts() {
         viewModelScope.launch {
@@ -109,6 +114,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         try {
             _dataState.value = FeedState.Refreshing
             repository.getAll()
+            showNews()
             _dataState.value = FeedState.Success
         } catch (e: Exception) {
             _dataState.value = FeedState.Error
@@ -118,7 +124,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun save() {
         viewModelScope.launch {
             edited.value?.let {
-                try{
+                try {
                     val id = repository.saveWork(
                         it, _photo.value?.uri?.let { MediaUpload(it.toFile()) }
                     )
@@ -132,7 +138,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                         .build()
                     workManager.enqueue(request)
                     _dataState.value = FeedState.Success
-                } catch(e:Exception){
+                } catch (e: Exception) {
                     _dataState.value = FeedState.Error
                 }
                 _postCreated.value = Unit
@@ -144,17 +150,20 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun edit(post: Post) {
         edited.value = post
-       post.attachment?.let{
-        changePhoto(Uri.parse(post.attachment?.url), File(post.attachment?.url) )}
+        post.attachment?.let {
+            changePhoto(Uri.parse(post.attachment?.url), File(post.attachment?.url))
+        }
     }
 
     fun changePost(post: Post) {
         val text = post.content.trim()
         var newAttachment: Attachment? = null
-        if(photo.value != noPhoto){
-            newAttachment = Attachment(photo.value?.uri.toString(), AttachmentType.IMAGE)}
+        if (photo.value != noPhoto) {
+            newAttachment = Attachment(photo.value?.uri.toString(), AttachmentType.IMAGE)
+        }
         if (edited.value?.content == text
-            && edited.value?.attachment == post.attachment) {
+            && edited.value?.attachment == post.attachment
+        ) {
             return
         }
         edited.value = edited.value?.copy(content = text, attachment = newAttachment)
@@ -174,11 +183,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun removeById(id: Long) {
-        val old = posts
+
         try {
-            posts.asLiveData(Dispatchers.Default).value?.posts?.filter {
-                it.id != id
-            }
             viewModelScope.launch {
                 try {
                     val data = workDataOf(RemovePostWorker.postKey to id)
@@ -196,7 +202,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         } catch (e: IOException) {
-            posts = old
         }
     }
 
@@ -205,7 +210,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             _dataState.postValue(FeedState.Error)
             errorMessage = when (it) {
                 "500" -> "Ошибка сервера"
-                "404","HTTP 404 " -> "Страница/пост не найдены"
+                "404", "HTTP 404 " -> "Страница/пост не найдены"
                 else -> "Ошибка соединения"
             }
         }

@@ -59,7 +59,7 @@ class PostRepositoryImpl(private val dao: PostDao,
                 val newer = PostsApi.service.getNewer(id).map(PostEntity.Companion::fromDto)
                     dao.insert(newer.map { val value = it.copy(newPost = true)
                                            value })
-                countNew = countNew + newer.size
+                countNew = newer.size
                 emit(newer.size)
                 delay(30_000L)
             }catch(e: IOException){}
@@ -75,11 +75,6 @@ class PostRepositoryImpl(private val dao: PostDao,
         dao.removeById(id)
         return response
     }
-
-//    override suspend fun newRemoveById(id: Long) {
-//        PostsApi.service.removeById(id)
-//        dao.removeById(id)
-//    }
 
     override suspend fun showNews() {
        dao.showNews()

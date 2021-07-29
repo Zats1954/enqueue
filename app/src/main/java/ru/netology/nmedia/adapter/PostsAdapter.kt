@@ -46,7 +46,8 @@ class PostViewHolder(
 
     fun bind(post: Post) {
         binding.apply {
-            menu.isVisible =  if(post.authorId == id) true else false
+//            menu.isVisible =  if(post.authorId == id) true else false
+            menu.isVisible =   post.ownedByMe
             author.text = post.author
             published.text = post.published.toString()
             content.text = post.content
