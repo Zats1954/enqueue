@@ -10,6 +10,7 @@ import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 
 class RefreshPostsWorker(
+    private val repository: PostRepository,
     applicationContext: Context,
     params: WorkerParameters
 ) : CoroutineWorker(applicationContext, params) {
@@ -18,12 +19,6 @@ class RefreshPostsWorker(
     }
 
     override suspend fun doWork(): Result = withContext(Dispatchers.Default) {
-        val repository: PostRepository =
-            PostRepositoryImpl(
-                AppDb.getInstance(context = applicationContext).postDao(),
-                AppDb.getInstance(context = applicationContext).postWorkDao(),
-            )
-
         try {
             repository.getAll()
             repository.showNews()

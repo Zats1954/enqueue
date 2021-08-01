@@ -23,8 +23,6 @@ interface OnInteractionListener {
     fun onShowImage(post:Post){}
 }
 
-
-
 class PostsAdapter(private val onInteractionListener: OnInteractionListener) :
            ListAdapter<Post, PostViewHolder>(PostDiffCallback()) {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -42,11 +40,8 @@ class PostViewHolder(
     private val onInteractionListener: OnInteractionListener,
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    val id = AppAuth.getInstance().authStateFlow.value.id
-
     fun bind(post: Post) {
         binding.apply {
-//            menu.isVisible =  if(post.authorId == id) true else false
             menu.isVisible =   post.ownedByMe
             author.text = post.author
             published.text = post.published.toString()

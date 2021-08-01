@@ -26,7 +26,9 @@ import java.io.IOException
 
 private val noPhoto = PhotoModel()
 
-class PostViewModel(application: Application) : AndroidViewModel(application) {
+class PostViewModel(private val repository: PostRepository,
+                    private val workManager: WorkManager,
+                    auth: AppAuth) :  ViewModel() {
     val empty = Post(
         id = 0,
         content = "",
@@ -39,17 +41,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         newPost = false
     )
 
-
-    private val repository: PostRepository =
-        PostRepositoryImpl(
-            AppDb.getInstance(application).postDao(),
-            AppDb.getInstance(context = application).postWorkDao()
-        )
-
-    private val workManager: WorkManager =
-        WorkManager.getInstance(application)
-
-    val data: LiveData<FeedModel> = AppAuth.getInstance()
+    val data: LiveData<FeedModel> = auth
         .authStateFlow
         .flatMapLatest { (myId, _) ->
             val answer = repository.data

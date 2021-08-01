@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import retrofit2.Response
-import ru.netology.nmedia.api.PostsApi
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dao.PostWorkDao
 import ru.netology.nmedia.dto.*
@@ -25,7 +25,9 @@ import ru.netology.nmedia.model.NetworkError
 import java.io.IOException
 
 class PostRepositoryImpl(private val dao: PostDao,
-                         private val postWorkDao: PostWorkDao) : PostRepository {
+                         private val postWorkDao: PostWorkDao,
+                         private val service: ApiService
+) : PostRepository {
     override var countNew: Int = 0
         get() = field
         set(value) {field = value}
@@ -36,7 +38,7 @@ class PostRepositoryImpl(private val dao: PostDao,
     override suspend fun getAll() {
         try{
         dao.removeAll()
-        val response = PostsApi.service.getAll()
+        val response = service.getAll()
         if (!response.isSuccessful) {
             throw ApiError(response.code(), response.message())
         }
@@ -56,7 +58,7 @@ class PostRepositoryImpl(private val dao: PostDao,
     override fun getNewerCount(id:Long): Flow<Int>  = flow{
         while(true) {
             try{
-                val newer = PostsApi.service.getNewer(id).map(PostEntity.Companion::fromDto)
+                val newer = service.getNewer(id).map(PostEntity.Companion::fromDto)
                     dao.insert(newer.map { val value = it.copy(newPost = true)
                                            value })
                 countNew = newer.size
@@ -67,11 +69,11 @@ class PostRepositoryImpl(private val dao: PostDao,
     }
 
     override suspend fun save(post: Post): Response<Post> {
-       return  PostsApi.service.save(post)
+       return  service.save(post)
       }
 
     override suspend fun removeById(id: Long):Response<Unit> {
-        val response = PostsApi.service.removeById(id)
+        val response = service.removeById(id)
         dao.removeById(id)
         return response
     }
@@ -100,7 +102,7 @@ class PostRepositoryImpl(private val dao: PostDao,
                 "file", upload.file.name, upload.file.asRequestBody()
             )
 
-            val response = PostsApi.service.upload(media)
+            val response = service.upload(media)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -114,13 +116,13 @@ class PostRepositoryImpl(private val dao: PostDao,
     }
 
     override suspend fun likeById(id: Long) {
-       PostsApi.service.likeById(id)
+        service.likeById(id)
         dao.likeById(id)
     }
 
     override suspend fun autorization(login: String, pass: String): Token {
         try {
-            val response = PostsApi.service.autorization(login, pass)
+            val response = service.autorization(login, pass)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -134,7 +136,7 @@ class PostRepositoryImpl(private val dao: PostDao,
 
     override suspend fun makeUser(login: String, pass: String, name:String): Token {
         try {
-             val response = PostsApi.service.registration(login, pass, name)
+             val response = service.registration(login, pass, name)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }

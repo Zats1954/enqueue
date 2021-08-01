@@ -9,19 +9,23 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.postArg
-import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.di.DependencyContainer
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.dto.Token
 import ru.netology.nmedia.viewmodel.AuthViewModel
 
 class AppActivity : AppCompatActivity(R.layout.activity_app) {
-    private val viewModel: AuthViewModel by viewModels()
+    private val container = DependencyContainer.getInstance(application)
+    private val viewModel: AuthViewModel by viewModels(factoryProducer = {
+                                container.viewModelFactory
+                          })
+
+    private val auth = container.auth
     private var myToken: Token? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,18 +73,18 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
                 val token = bundleOf("token" to myToken)
                 findNavController(R.id.nav_host_fragment)
                     .navigate(R.id.action_feedFragment_to_signInFragment, token)
-                myToken?.let{AppAuth.getInstance().setAuth(it.id, it.token)}
+                myToken?.let{auth.setAuth(it.id, it.token)}
                 true
             }
             R.id.signup -> {
                 val tokenUp = Bundle()
                 tokenUp.putParcelable("token", myToken)
                 findNavController(R.id.nav_host_fragment).navigate(R.id.action_feedFragment_to_signUpFragment)
-                myToken?.let{AppAuth.getInstance().setAuth( it.id, it.token)}
+                myToken?.let{auth.setAuth( it.id, it.token)}
                 true
             }
             R.id.signout -> {
-                AppAuth.getInstance().removeAuth()
+                auth.removeAuth()
                 true
             }
             else -> super.onOptionsItemSelected(item)
