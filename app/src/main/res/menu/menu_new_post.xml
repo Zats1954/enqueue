@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:label = "showMenu">
+    <item
+        android:id="@+id/photoM"
+        android:icon="@drawable/ic_photo_24dp"
+        android:title="@string/description_select_photo"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/cameraM"
+        android:icon="@drawable/ic_camera_24dp"
+        android:title="@string/description_take_photo"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/save"
+        android:icon="@drawable/ic_menu_save_24"
+        android:title="@string/menu_save"
+        app:showAsAction="always" />
+
+</menu>
