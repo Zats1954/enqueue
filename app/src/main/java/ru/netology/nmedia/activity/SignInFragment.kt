@@ -10,6 +10,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentSignInBinding
+import ru.netology.nmedia.di.DependencyContainer
 import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.util.AndroidUtils
 
@@ -18,7 +19,10 @@ import ru.netology.nmedia.viewmodel.AuthViewModel
 class SignInFragment: Fragment() {
 
     private val viewModel: AuthViewModel by viewModels(
-        ownerProducer = ::requireParentFragment)
+        ownerProducer = ::requireParentFragment,
+        factoryProducer = {
+            DependencyContainer.getInstance(requireContext().applicationContext).viewModelFactory
+        })
 
     override fun onCreateView(
         inflater: LayoutInflater,

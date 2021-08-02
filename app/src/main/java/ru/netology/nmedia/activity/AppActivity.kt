@@ -20,12 +20,12 @@ import ru.netology.nmedia.dto.Token
 import ru.netology.nmedia.viewmodel.AuthViewModel
 
 class AppActivity : AppCompatActivity(R.layout.activity_app) {
-    private val container = DependencyContainer.getInstance(application)
+    private val container by lazy {DependencyContainer.getInstance(application)}
     private val viewModel: AuthViewModel by viewModels(factoryProducer = {
                                 container.viewModelFactory
                           })
 
-    private val auth = container.auth
+    private val auth by lazy {container.auth}
     private var myToken: Token? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

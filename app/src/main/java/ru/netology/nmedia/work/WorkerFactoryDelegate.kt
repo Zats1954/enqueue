@@ -9,6 +9,7 @@ class WorkerFactoryDelegate(
     init{
         addFactory(RefreshPostsFactory(repository))
         addFactory(SavePostsFactory(repository))
+        addFactory(RemovePostFactory(repository))
     }
 
 }
