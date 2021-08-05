@@ -11,15 +11,15 @@ import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
-import ru.netology.nmedia.di.DependencyContainer
+import javax.inject.Inject
 import kotlin.random.Random
 
 
 class FCMService : FirebaseMessagingService() {
     private val channelId = "remote"
     private val gson = Gson()
-    private val container = DependencyContainer.getInstance(application)
-    private val auth = container.auth
+    @Inject
+    lateinit var auth: AppAuth
 
     override fun onCreate() {
         super.onCreate()

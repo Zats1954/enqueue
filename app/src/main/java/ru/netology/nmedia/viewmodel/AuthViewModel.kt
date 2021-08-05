@@ -1,6 +1,7 @@
 package ru.netology.nmedia.viewmodel
 
 import androidx.lifecycle.*
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
@@ -8,9 +9,11 @@ import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.util.SingleLiveEvent
+import javax.inject.Inject
 
-class AuthViewModel(private val repository: PostRepository,
-                    private val auth: AppAuth) : ViewModel() {
+@HiltViewModel
+class AuthViewModel @Inject constructor(private val repository: PostRepository,
+                                        private val auth: AppAuth) : ViewModel() {
 
     val data: LiveData<AuthState> = auth
         .authStateFlow

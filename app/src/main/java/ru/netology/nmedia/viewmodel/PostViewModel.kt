@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.core.net.toFile
 import androidx.lifecycle.*
 import androidx.work.*
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -23,10 +24,12 @@ import ru.netology.nmedia.work.RemovePostWorker
 import ru.netology.nmedia.work.SavePostWorker
 import java.io.File
 import java.io.IOException
+import javax.inject.Inject
 
 private val noPhoto = PhotoModel()
 
-class PostViewModel(private val repository: PostRepository,
+@HiltViewModel
+class PostViewModel @Inject constructor(private val repository: PostRepository,
                     private val workManager: WorkManager,
                     auth: AppAuth) :  ViewModel() {
     val empty = Post(

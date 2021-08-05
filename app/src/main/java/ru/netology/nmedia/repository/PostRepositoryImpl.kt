@@ -23,10 +23,11 @@ import ru.netology.nmedia.model.AppError
 import ru.netology.nmedia.model.UnknownError
 import ru.netology.nmedia.model.NetworkError
 import java.io.IOException
+import javax.inject.Inject
 
-class PostRepositoryImpl(private val dao: PostDao,
-                         private val postWorkDao: PostWorkDao,
-                         private val service: ApiService
+class PostRepositoryImpl @Inject constructor(private val dao: PostDao,
+                                             private val postWorkDao: PostWorkDao,
+                                             private val service: ApiService
 ) : PostRepository {
     override var countNew: Int = 0
         get() = field
@@ -43,6 +44,7 @@ class PostRepositoryImpl(private val dao: PostDao,
             throw ApiError(response.code(), response.message())
         }
         val body = response.body() ?: throw ApiError(response.code(), response.message())
+//            println("************************ response ${response.body()}")
         dao.insert(body.toEntity())
     } catch (e: IOException) {
         throw NetworkError
@@ -122,7 +124,9 @@ class PostRepositoryImpl(private val dao: PostDao,
 
     override suspend fun autorization(login: String, pass: String): Token {
         try {
+            println("************************* login ${login} pass ${pass}")
             val response = service.autorization(login, pass)
+            println("************************* response ${response}")
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }

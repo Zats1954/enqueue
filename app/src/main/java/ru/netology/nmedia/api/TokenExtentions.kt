@@ -3,12 +3,21 @@ package ru.netology.nmedia.api
 import android.content.SharedPreferences
 import androidx.core.content.edit
 
-private const val KEY = "token"
+private val KEY_TOKEN = "token"
+private val KEY_ID = "id"
 
 var SharedPreferences.token: String?
-    get() = getString(KEY, null)
+get() = getString(KEY_TOKEN, null)
+set(value) {
+    edit {
+        putString(KEY_TOKEN, value)
+    }
+}
+
+var SharedPreferences.id: Long
+    get() = getLong(KEY_ID, 0L)
     set(value) {
-        edit{
-         putString(KEY, value)
+        edit {
+            putLong(KEY_ID, value)
         }
     }

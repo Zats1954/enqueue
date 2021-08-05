@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'dagger.hilt.android.plugin'
 
 android {
     compileSdkVersion 30
@@ -40,7 +41,7 @@ android {
         }
         debug {
             manifestPlaceholders.usesCleartextTraffic = true
-            buildConfigField "String", "BASE_URL", "\"http://192.168.0.136:9999\""
+            buildConfigField "String", "BASE_URL", "\"http://10.0.2.2:9999\""
         }
     }
 }
@@ -69,6 +70,7 @@ dependencies {
     def imagepicker_version = "1.8"
     def play_services_base_version = "17.6.0"
     def workmanager_version = "2.5.0"
+    def hilt_work_version = "1.0.0"
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -101,6 +103,9 @@ dependencies {
     implementation 'com.github.himangipatel:ImagePickerUtil:v2.1'
     implementation "com.google.android.gms:play-services-base:$play_services_base_version"
     implementation "androidx.work:work-runtime-ktx:$workmanager_version"
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+    implementation "androidx.hilt:hilt-work:$hilt_work_version"
 
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "androidx.test.ext:junit:$ext_junit_version"

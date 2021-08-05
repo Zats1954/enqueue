@@ -8,29 +8,30 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
+import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.postArg
-import ru.netology.nmedia.di.DependencyContainer
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.dto.Token
 import ru.netology.nmedia.viewmodel.AuthViewModel
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AppActivity : AppCompatActivity(R.layout.activity_app) {
-    private val container by lazy {DependencyContainer.getInstance(application)}
-    private val viewModel: AuthViewModel by viewModels(factoryProducer = {
-                                container.viewModelFactory
-                          })
 
-    private val auth by lazy {container.auth}
+    @Inject
+    lateinit var auth: AppAuth
+    private val viewModel: AuthViewModel by viewModels( )
     private var myToken: Token? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         intent?.let {
             if (it.action != Intent.ACTION_SEND) {
                 return@let
@@ -84,6 +85,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
                 true
             }
             R.id.signout -> {
+//                println("************************** delete ${auth.authStateFlow.value.id}")
                 auth.removeAuth()
                 true
             }
