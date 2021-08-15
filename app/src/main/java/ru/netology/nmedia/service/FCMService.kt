@@ -18,7 +18,7 @@ import kotlin.random.Random
 class FCMService : FirebaseMessagingService() {
     private val channelId = "remote"
     private val gson = Gson()
-    private val container = DependencyContainer.getInstance(application)
+    private val container by lazy{DependencyContainer.getInstance(application)}
     private val auth = container.auth
 
     override fun onCreate() {
