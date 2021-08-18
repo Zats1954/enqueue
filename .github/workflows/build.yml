@@ -1,10 +1,10 @@
-name: CI RETROFIT
+name: CI COROUTINE
 
 on:
   push:
-    branches: [ retrofit ]
+    branches: [ coroutine ]
   pull_request:
-    branches: [ retrofit ]
+    branches: [ coroutine ]
 
 jobs:
   build:
