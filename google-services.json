@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "573221063595",
+    "firebase_url": "https://netologyzats-default-rtdb.firebaseio.com",
+    "project_id": "netologyzats",
+    "storage_bucket": "netologyzats.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:573221063595:android:8f2a317e3723d89d2ce0ee",
+        "android_client_info": {
+          "package_name": "ru.netology.nmedia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "573221063595-q8hpgpgpfcri4nta8j16oupnada2hn5i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZ7QE02Xavzeknlz1fI4M6xIjyNeCGKoA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "573221063595-q8hpgpgpfcri4nta8j16oupnada2hn5i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
