@@ -5,7 +5,7 @@ import ru.netology.nmedia.dto.Token
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-object AuthArg: ReadWriteProperty<Bundle, Token?> {
+object AuthArg : ReadWriteProperty<Bundle, Token?> {
 
     override fun setValue(thisRef: Bundle, property: KProperty<*>, value: Token?) {
         thisRef.putParcelable(property.name, value)

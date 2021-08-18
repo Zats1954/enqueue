@@ -17,10 +17,11 @@ import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.viewmodel.AuthViewModel
 
 @AndroidEntryPoint
-class SignInFragment: Fragment() {
+class SignInFragment : Fragment() {
 
     private val viewModel: AuthViewModel by viewModels(
-        ownerProducer = ::requireParentFragment)
+        ownerProducer = ::requireParentFragment
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,8 +36,8 @@ class SignInFragment: Fragment() {
         }
 
         viewModel.authCreated.observe(viewLifecycleOwner) {
-            if(viewModel.dataState.value == FeedState.Error){
-                Snackbar.make(binding.root , "${R.string.authError}", Snackbar.LENGTH_LONG).show()
+            if (viewModel.dataState.value == FeedState.Error) {
+                Snackbar.make(binding.root, "${R.string.authError}", Snackbar.LENGTH_LONG).show()
             }
             viewModel.loadPosts()
             findNavController().navigateUp()

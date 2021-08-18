@@ -27,7 +27,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
 
     @Inject
     lateinit var auth: AppAuth
-    private val viewModel: AuthViewModel by viewModels( )
+    private val viewModel: AuthViewModel by viewModels()
     private var myToken: Token? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +52,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
                 )
         }
 
-        viewModel.data.observe(this){
+        viewModel.data.observe(this) {
             invalidateOptionsMenu()
         }
         checkGoogleApiAvailability()
@@ -69,23 +69,22 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId){
+        return when (item.itemId) {
             R.id.signin -> {
                 val token = bundleOf("token" to myToken)
                 findNavController(R.id.nav_host_fragment)
                     .navigate(R.id.action_feedFragment_to_signInFragment, token)
-                myToken?.let{auth.setAuth(it.id, it.token)}
+                myToken?.let { auth.setAuth(it.id, it.token) }
                 true
             }
             R.id.signup -> {
                 val tokenUp = Bundle()
                 tokenUp.putParcelable("token", myToken)
                 findNavController(R.id.nav_host_fragment).navigate(R.id.action_feedFragment_to_signUpFragment)
-                myToken?.let{auth.setAuth( it.id, it.token)}
+                myToken?.let { auth.setAuth(it.id, it.token) }
                 true
             }
             R.id.signout -> {
-//                println("************************** delete ${auth.authStateFlow.value.id}")
                 auth.removeAuth()
                 true
             }
@@ -95,7 +94,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
     }
 
 
-        private fun checkGoogleApiAvailability() {
+    private fun checkGoogleApiAvailability() {
         with(GoogleApiAvailability.getInstance()) {
             val code = isGooglePlayServicesAvailable(this@AppActivity)
             if (code == ConnectionResult.SUCCESS) {

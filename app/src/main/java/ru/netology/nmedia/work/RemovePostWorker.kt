@@ -6,10 +6,11 @@ import androidx.work.WorkerParameters
 import ru.netology.nmedia.repository.PostRepository
 
 
-class RemovePostWorker(private val repository: PostRepository,
-                       applicationContext: Context,
-                       params: WorkerParameters) : CoroutineWorker(applicationContext, params)
-{
+class RemovePostWorker(
+    private val repository: PostRepository,
+    applicationContext: Context,
+    params: WorkerParameters
+) : CoroutineWorker(applicationContext, params) {
     companion object {
         const val postKey = "post"
     }

@@ -5,8 +5,8 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class Token(
-    val id:Long,
+    val id: Long,
     val token: String
-): Parcelable
+) : Parcelable
 
 

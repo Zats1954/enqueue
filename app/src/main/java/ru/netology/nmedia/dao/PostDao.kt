@@ -25,12 +25,14 @@ interface PostDao {
     suspend fun save(post: PostEntity) =
         if (post.id == 0L) insert(post) else updateContentById(post.id, post.content)
 
-    @Query("""
+    @Query(
+        """
         UPDATE PostEntity SET
         likes = likes + 1,
         likedByMe =  1
         WHERE id = :id
-        """)
+        """
+    )
     suspend fun likeById(id: Long)
 
     @Query("DELETE FROM PostEntity WHERE id = :id")
@@ -49,6 +51,7 @@ interface PostDao {
 class Converters {
     @TypeConverter
     fun toAttachmentType(value: String) = enumValueOf<AttachmentType>(value)
+
     @TypeConverter
     fun fromAttachmentType(value: AttachmentType) = value.name
 }

@@ -20,11 +20,9 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 
 @AndroidEntryPoint
 class FeedFragment : Fragment() {
-
     private val viewModel: PostViewModel by viewModels(
         ownerProducer = ::requireParentFragment,
     )
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,7 +36,7 @@ class FeedFragment : Fragment() {
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
                 val bundle = Bundle()
-                bundle.putParcelable("post",post)
+                bundle.putParcelable("post", post)
                 findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, bundle)
                 viewModel.removeById(post.id)
                 viewModel.refreshPosts()
@@ -65,17 +63,17 @@ class FeedFragment : Fragment() {
             }
 
 
-            override fun onShowImage(post:Post){
-                    val bundle = Bundle()
-                    bundle.putString("postImage", post.attachment?.url)
-                    findNavController().navigate(R.id.action_feedFragment_to_showImageFragment, bundle)
+            override fun onShowImage(post: Post) {
+                val bundle = Bundle()
+                bundle.putString("postImage", post.attachment?.url)
+                findNavController().navigate(R.id.action_feedFragment_to_showImageFragment, bundle)
             }
         })
 
         binding.list.adapter = adapter
 
-        viewModel.dataState.observe(viewLifecycleOwner){state ->
-            when(state){
+        viewModel.dataState.observe(viewLifecycleOwner) { state ->
+            when (state) {
                 FeedState.Loading -> {
                     binding.progress.isVisible = true
                     binding.errorGroup.isVisible = false
@@ -87,7 +85,7 @@ class FeedFragment : Fragment() {
                     binding.errorMessage.text = viewModel.errorMessage
                     binding.list.isVisible = false
                 }
-                FeedState.Refreshing, FeedState.Success ->{
+                FeedState.Refreshing, FeedState.Success -> {
                     binding.progress.isVisible = false
                     binding.errorGroup.isVisible = false
                     binding.list.isVisible = true
@@ -96,7 +94,7 @@ class FeedFragment : Fragment() {
             }
         }
 
-        viewModel.data.observe(viewLifecycleOwner) {state ->
+        viewModel.data.observe(viewLifecycleOwner) { state ->
             adapter.submitList(state.posts)
             binding.emptyText.isVisible = state.empty
         }
@@ -108,7 +106,7 @@ class FeedFragment : Fragment() {
 
         binding.fab.setOnClickListener {
             val bundle = Bundle()
-            bundle.putParcelable("post",viewModel.empty)
+            bundle.putParcelable("post", viewModel.empty)
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, bundle)
         }
 
@@ -119,11 +117,11 @@ class FeedFragment : Fragment() {
             viewModel.loadPosts()
         }
 
-        viewModel.newer.observe(viewLifecycleOwner){
-           if(viewModel.countNewPosts > 0){
-               binding.newsButton.text ="${viewModel.countNewPosts} new posts"
-               binding.newsButton.isVisible = true
-           }
+        viewModel.newer.observe(viewLifecycleOwner) {
+            if (viewModel.countNewPosts > 0) {
+                binding.newsButton.text = "${viewModel.countNewPosts} new posts"
+                binding.newsButton.isVisible = true
+            }
         }
 
         return binding.root

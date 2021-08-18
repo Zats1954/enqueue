@@ -8,18 +8,15 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
-import ru.netology.nmedia.R
-import ru.netology.nmedia.databinding.FragmentNewPostBinding
-import ru.netology.nmedia.util.AndroidUtils
-import ru.netology.nmedia.util.PostArg
-import ru.netology.nmedia.viewmodel.PostViewModel
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.BuildConfig
-import ru.netology.nmedia.dto.Attachment
+import ru.netology.nmedia.R
+import ru.netology.nmedia.databinding.FragmentNewPostBinding
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.enumeration.AttachmentType
+import ru.netology.nmedia.util.AndroidUtils
+import ru.netology.nmedia.util.PostArg
+import ru.netology.nmedia.viewmodel.PostViewModel
 import java.io.File
 
 class NewPostFragment : Fragment() {
@@ -49,7 +46,7 @@ class NewPostFragment : Fragment() {
         return when (item.itemId) {
             R.id.save -> {
                 fragmentBinding?.let {
-                    arguments?.getParcelable<Post>("post")?.let{post ->
+                    arguments?.getParcelable<Post>("post")?.let { post ->
                         viewModel.changePost(post.copy(content = it.edit.text.toString()))
                     }
                     viewModel.save()
@@ -63,10 +60,12 @@ class NewPostFragment : Fragment() {
                     .compress(1024)
                     .maxResultSize(1080, 1080)
                     .galleryOnly()
-                    .galleryMimeTypes(arrayOf(
-                        "image/png",
-                        "image/jpeg",
-                    ))
+                    .galleryMimeTypes(
+                        arrayOf(
+                            "image/png",
+                            "image/jpeg",
+                        )
+                    )
                     .start(photoRequestCode)
                 true
             }
@@ -94,13 +93,13 @@ class NewPostFragment : Fragment() {
             false
         )
 // заполнение полей формы для редактирования
-        arguments?.getParcelable<Post>("post")?.let{post ->
-            if(post.id !=0L){
-                    binding.edit.setText(post.content)
-                    post.attachment?.let{
-                           val imagePath = "${BuildConfig.BASE_URL}/media/${post.attachment?.url}"
-                           viewModel.changePhoto(Uri.parse(imagePath),File(imagePath))
-                        } ?: viewModel.changePhoto(null,null)
+        arguments?.getParcelable<Post>("post")?.let { post ->
+            if (post.id != 0L) {
+                binding.edit.setText(post.content)
+                post.attachment?.let {
+                    val imagePath = "${BuildConfig.BASE_URL}/media/${post.attachment?.url}"
+                    viewModel.changePhoto(Uri.parse(imagePath), File(imagePath))
+                } ?: viewModel.changePhoto(null, null)
             }
         }
 //-------------------------------------------------------
@@ -108,7 +107,7 @@ class NewPostFragment : Fragment() {
 
 
         binding.ok.setOnClickListener {
-            arguments?.getParcelable<Post>("post")?.let{
+            arguments?.getParcelable<Post>("post")?.let {
                 viewModel.changePost(it.copy(content = binding.edit.text.toString()))
             }
             viewModel.save()
@@ -122,7 +121,7 @@ class NewPostFragment : Fragment() {
 
         binding.removePhoto.setOnClickListener {
             viewModel.changePhoto(null, null)
-            arguments?.getParcelable<Post>("post")?.let{
+            arguments?.getParcelable<Post>("post")?.let {
                 viewModel.changePost(it.copy(attachment = null))
             }
         }

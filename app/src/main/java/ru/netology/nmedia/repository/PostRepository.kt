@@ -11,10 +11,10 @@ interface PostRepository {
     var countNew: Int
     val data: Flow<List<Post>>
     suspend fun getAll()
-    suspend fun getById(id:Long): Post
-    fun getNewerCount(id:Long): Flow<Int>
-    suspend fun save(post:Post): Response<Post>
-    suspend fun likeById(id:Long)
+    suspend fun getById(id: Long): Post
+    fun getNewerCount(id: Long): Flow<Int>
+    suspend fun save(post: Post): Response<Post>
+    suspend fun likeById(id: Long)
     suspend fun removeById(id: Long): Response<Unit>
     suspend fun showNews()
     suspend fun saveWithAttachment(post: Post, upload: MediaUpload): Response<Post>

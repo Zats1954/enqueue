@@ -5,7 +5,7 @@ import ru.netology.nmedia.dto.Post
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-object PostArg: ReadWriteProperty<Bundle, Post?> {
+object PostArg : ReadWriteProperty<Bundle, Post?> {
 
     override fun setValue(thisRef: Bundle, property: KProperty<*>, value: Post?) {
         thisRef.putParcelable(property.name, value)

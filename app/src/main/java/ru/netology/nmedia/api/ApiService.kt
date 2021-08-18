@@ -2,14 +2,12 @@ package ru.netology.nmedia.api
 /*   19.04.2021           */
 
 import okhttp3.MultipartBody
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.http.*
 import ru.netology.nmedia.dto.Media
-import ru.netology.nmedia.dto.Token
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.dto.PushToken
+import ru.netology.nmedia.dto.Token
 
 interface ApiService {
 

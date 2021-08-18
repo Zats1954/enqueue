@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
-import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
 
@@ -20,19 +19,20 @@ interface OnInteractionListener {
     fun onEdit(post: Post) {}
     fun onRemove(post: Post) {}
     fun onShare(post: Post) {}
-    fun onShowImage(post:Post){}
+    fun onShowImage(post: Post) {}
 }
 
 class PostsAdapter(private val onInteractionListener: OnInteractionListener) :
-           ListAdapter<Post, PostViewHolder>(PostDiffCallback()) {
-            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
-                val binding = CardPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-                return PostViewHolder(binding, onInteractionListener)
-            }
-            override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-                val post = getItem(position)
-                holder.bind(post)
-            }
+    ListAdapter<Post, PostViewHolder>(PostDiffCallback()) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
+        val binding = CardPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return PostViewHolder(binding, onInteractionListener)
+    }
+
+    override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
+        val post = getItem(position)
+        holder.bind(post)
+    }
 }
 
 class PostViewHolder(
@@ -42,30 +42,30 @@ class PostViewHolder(
 
     fun bind(post: Post) {
         binding.apply {
-            menu.isVisible =   post.ownedByMe
+            menu.isVisible = post.ownedByMe
             author.text = post.author
             published.text = post.published.toString()
             content.text = post.content
             card.isVisible = !post.newPost
-            post.attachment?.let{
+            post.attachment?.let {
                 imageView.isVisible = true
                 Glide.with(imageView)
-                    .load(BuildConfig.BASE_URL  + "/media/" + post.attachment.url )
+                    .load(BuildConfig.BASE_URL + "/media/" + post.attachment.url)
                     .placeholder(R.drawable.ic_camera_24dp)
                     .error(R.drawable.ic_error_100dp)
-                    .override(300,200)
+                    .override(300, 200)
                     .timeout(10_000)
                     .into(imageView)
             }
 
 
             Glide.with(avatar)
-                    .load(BuildConfig.BASE_URL  + "/avatars/" + post.authorAvatar )
-                    .circleCrop()
-                    .placeholder(R.drawable.ic_loading_100dp)
-                    .error(R.drawable.ic_error_100dp)
-                    .timeout(10_000)
-                    .into(avatar)
+                .load(BuildConfig.BASE_URL + "/avatars/" + post.authorAvatar)
+                .circleCrop()
+                .placeholder(R.drawable.ic_loading_100dp)
+                .error(R.drawable.ic_error_100dp)
+                .timeout(10_000)
+                .into(avatar)
             // в адаптере
             like.isChecked = post.likedByMe
             like.text = "${post.likes}"

@@ -20,74 +20,81 @@ import ru.netology.nmedia.entity.toEntity
 import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.model.ApiError
 import ru.netology.nmedia.model.AppError
-import ru.netology.nmedia.model.UnknownError
 import ru.netology.nmedia.model.NetworkError
+import ru.netology.nmedia.model.UnknownError
 import java.io.IOException
 import javax.inject.Inject
 
-class PostRepositoryImpl @Inject constructor(private val dao: PostDao,
-                                             private val postWorkDao: PostWorkDao,
-                                             private val service: ApiService
+class PostRepositoryImpl @Inject constructor(
+    private val dao: PostDao,
+    private val postWorkDao: PostWorkDao,
+    private val service: ApiService
 ) : PostRepository {
     override var countNew: Int = 0
         get() = field
-        set(value) {field = value}
+        set(value) {
+            field = value
+        }
 
     override val data = dao.getAll().map {
-        it.map(PostEntity::toDto)}.flowOn(Dispatchers.Default)
+        it.map(PostEntity::toDto)
+    }.flowOn(Dispatchers.Default)
 
     override suspend fun getAll() {
-        try{
-        dao.removeAll()
-        val response = service.getAll()
-        if (!response.isSuccessful) {
-            throw ApiError(response.code(), response.message())
+        try {
+            dao.removeAll()
+            val response = service.getAll()
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            dao.insert(body.toEntity())
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
         }
-        val body = response.body() ?: throw ApiError(response.code(), response.message())
-//            println("************************ response ${response.body()}")
-        dao.insert(body.toEntity())
-    } catch (e: IOException) {
-        throw NetworkError
-    } catch (e: Exception) {
-        throw UnknownError
-    }
     }
 
     override suspend fun getById(id: Long): Post {
         return dao.getById(id).toDto()
     }
 
-    override fun getNewerCount(id:Long): Flow<Int>  = flow{
-        while(true) {
-            try{
+    override fun getNewerCount(id: Long): Flow<Int> = flow {
+        while (true) {
+            try {
                 val newer = service.getNewer(id).map(PostEntity.Companion::fromDto)
-                    dao.insert(newer.map { val value = it.copy(newPost = true)
-                                           value })
+                dao.insert(newer.map {
+                    val value = it.copy(newPost = true)
+                    value
+                })
                 countNew = newer.size
                 emit(newer.size)
                 delay(30_000L)
-            }catch(e: IOException){}
+            } catch (e: IOException) {
+            }
         }
     }
 
     override suspend fun save(post: Post): Response<Post> {
-       return  service.save(post)
-      }
+        return service.save(post)
+    }
 
-    override suspend fun removeById(id: Long):Response<Unit> {
+    override suspend fun removeById(id: Long): Response<Unit> {
         val response = service.removeById(id)
         dao.removeById(id)
         return response
     }
 
     override suspend fun showNews() {
-       dao.showNews()
+        dao.showNews()
     }
 
     override suspend fun saveWithAttachment(post: Post, upload: MediaUpload): Response<Post> {
         try {
             val media = upload(upload)
-            val postWithAttachment = post.copy(attachment = Attachment(media.id, AttachmentType.IMAGE))
+            val postWithAttachment =
+                post.copy(attachment = Attachment(media.id, AttachmentType.IMAGE))
             return save(postWithAttachment)
         } catch (e: AppError) {
             throw e
@@ -124,9 +131,7 @@ class PostRepositoryImpl @Inject constructor(private val dao: PostDao,
 
     override suspend fun autorization(login: String, pass: String): Token {
         try {
-            println("************************* login ${login} pass ${pass}")
             val response = service.autorization(login, pass)
-            println("************************* response ${response}")
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -138,9 +143,9 @@ class PostRepositoryImpl @Inject constructor(private val dao: PostDao,
         }
     }
 
-    override suspend fun makeUser(login: String, pass: String, name:String): Token {
+    override suspend fun makeUser(login: String, pass: String, name: String): Token {
         try {
-             val response = service.registration(login, pass, name)
+            val response = service.registration(login, pass, name)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -172,11 +177,15 @@ class PostRepositoryImpl @Inject constructor(private val dao: PostDao,
             val response = if (entity.uri != null) {
                 val upload = MediaUpload(Uri.parse(entity.uri).toFile())
                 saveWithAttachment(entity.toDto().copy(id = 0L), upload)
+            } else {
+                save(entity.toDto().copy(id = 0L))
             }
-            else{save(entity.toDto().copy(id = 0L))}
 
-            if(response.isSuccessful){postWorkDao.removeById(id)}
-            else{return@processWork}
+            if (response.isSuccessful) {
+                postWorkDao.removeById(id)
+            } else {
+                return@processWork
+            }
 
         } catch (e: Exception) {
             throw UnknownError

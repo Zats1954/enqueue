@@ -5,8 +5,8 @@ import ru.netology.nmedia.repository.PostRepository
 
 class WorkerFactoryDelegate(
     private val repository: PostRepository
-): DelegatingWorkerFactory() {
-    init{
+) : DelegatingWorkerFactory() {
+    init {
         addFactory(RefreshPostsFactory(repository))
         addFactory(SavePostsFactory(repository))
         addFactory(RemovePostFactory(repository))

@@ -15,14 +15,17 @@ import javax.inject.Singleton
 @Module
 class WorkManagerModule {
 
-  @Singleton
-  @Provides
-  fun provideWorkManager(
-      @ApplicationContext
-      context: Context, repository: PostRepository): WorkManager{
-      WorkManager.initialize(context, Configuration.Builder()
-          .setWorkerFactory(WorkerFactoryDelegate(repository))
-          .build())
-      return WorkManager.getInstance(context)
-  }
+    @Singleton
+    @Provides
+    fun provideWorkManager(
+        @ApplicationContext
+        context: Context, repository: PostRepository
+    ): WorkManager {
+        WorkManager.initialize(
+            context, Configuration.Builder()
+                .setWorkerFactory(WorkerFactoryDelegate(repository))
+                .build()
+        )
+        return WorkManager.getInstance(context)
+    }
 }

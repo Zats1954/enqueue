@@ -10,6 +10,7 @@ sealed class FeedState {
 }
 
 data class FeedModel(
-val posts: List<Post> = emptyList(),
-val empty: Boolean = false,
-val message: String = "")
+    val posts: List<Post> = emptyList(),
+    val empty: Boolean = false,
+    val message: String = ""
+)

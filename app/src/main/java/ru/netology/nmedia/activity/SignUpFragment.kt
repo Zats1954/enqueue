@@ -8,15 +8,14 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.github.dhaval2404.imagepicker.ImagePicker
-import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentSignUpBinding
-import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.viewmodel.AuthViewModel
 
-class SignUpFragment: Fragment() {
+@AndroidEntryPoint
+class SignUpFragment : Fragment() {
 
     private val viewModel: AuthViewModel by viewModels(
         ownerProducer = ::requireParentFragment
@@ -34,14 +33,16 @@ class SignUpFragment: Fragment() {
         )
 
         binding.button.setOnClickListener {
-            if(binding.pass.text.toString() == binding.passCopy.text.toString()){
-            viewModel.signUp(binding.login.text.toString(),
-                             binding.pass.text.toString(),
-                             binding.name.text.toString())
-            viewModel.save()
-            AndroidUtils.hideKeyboard(requireView())}
-            else {
-                Toast.makeText(this.context, R.string.wrong_pass, Toast.LENGTH_LONG ).show()
+            if (binding.pass.text.toString() == binding.passCopy.text.toString()) {
+                viewModel.signUp(
+                    binding.login.text.toString(),
+                    binding.pass.text.toString(),
+                    binding.name.text.toString()
+                )
+                viewModel.save()
+                AndroidUtils.hideKeyboard(requireView())
+            } else {
+                Toast.makeText(this.context, R.string.wrong_pass, Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
         }

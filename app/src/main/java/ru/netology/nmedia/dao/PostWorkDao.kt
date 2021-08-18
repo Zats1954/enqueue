@@ -19,5 +19,5 @@ interface PostWorkDao {
     suspend fun removeById(id: Long)
 
     @Query("SELECT * FROM PostWorkEntity")
-    suspend fun allEntity() : List<PostWorkEntity>
+    suspend fun allEntity(): List<PostWorkEntity>
 }

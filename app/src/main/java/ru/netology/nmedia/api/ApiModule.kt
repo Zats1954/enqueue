@@ -21,39 +21,37 @@ import javax.inject.Singleton
 @Module
 class ApiModule {
 
-  companion object{
-    private const val BASE_URL = "${BuildConfig.BASE_URL}/api/"
-  }
+    companion object {
+        private const val BASE_URL = "${BuildConfig.BASE_URL}/api/"
+    }
 
-  @Provides
-  fun provideAuthPref(
-      @ApplicationContext
-      context: Context
-  ): SharedPreferences = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+    @Provides
+    fun provideAuthPref(
+        @ApplicationContext
+        context: Context
+    ): SharedPreferences = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
 
-  @Singleton
-  @Provides
-  fun provideOkhttp(
-      authPrefs: SharedPreferences
-   ): OkHttpClient = OkHttpClient.Builder()
-      .addInterceptor(HttpLoggingInterceptor().apply {
-          if (BuildConfig.DEBUG) {
-              level = HttpLoggingInterceptor.Level.BODY
-          }
-      })
-      .addInterceptor { chain ->
-          authPrefs.token?.let{ token ->
-              println("Auth id ${authPrefs.id}")
-              println("Auth token ${token}")
-              val newRequest = chain.request().newBuilder()
-                  .addHeader("Authorization", token)
-                  .build()
-              return@addInterceptor chain.proceed(newRequest)
-          }
-          chain.proceed(chain.request())
-      }
-      .connectTimeout(30, TimeUnit.SECONDS)
-      .build()
+    @Singleton
+    @Provides
+    fun provideOkhttp(
+        authPrefs: SharedPreferences
+    ): OkHttpClient = OkHttpClient.Builder()
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            if (BuildConfig.DEBUG) {
+                level = HttpLoggingInterceptor.Level.BODY
+            }
+        })
+        .addInterceptor { chain ->
+            authPrefs.token?.let { token ->
+                val newRequest = chain.request().newBuilder()
+                    .addHeader("Authorization", token)
+                    .build()
+                return@addInterceptor chain.proceed(newRequest)
+            }
+            chain.proceed(chain.request())
+        }
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .build()
 
     @Singleton
     @Provides
@@ -68,7 +66,8 @@ class ApiModule {
     @Provides
     fun provideApi(retrofit: Retrofit): ApiService = retrofit.create()
 
+    @Singleton
     @Provides
     fun provideAuth(prefs: SharedPreferences, apiService: ApiService): AppAuth =
-                             AppAuth(prefs, apiService)
+        AppAuth(prefs, apiService)
 }

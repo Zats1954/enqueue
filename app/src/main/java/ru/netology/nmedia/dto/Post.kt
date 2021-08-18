@@ -16,11 +16,11 @@ data class Post(
     val likes: Int = 0,
     val newPost: Boolean = true,
     val ownedByMe: Boolean = false,
-    val attachment: Attachment? =null
-): Parcelable
+    val attachment: Attachment? = null
+) : Parcelable
 
 @Parcelize
 data class Attachment(
     val url: String,
     val type: AttachmentType,
-): Parcelable
+) : Parcelable

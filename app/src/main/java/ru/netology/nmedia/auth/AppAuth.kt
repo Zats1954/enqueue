@@ -5,14 +5,17 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.api.token
 import ru.netology.nmedia.dto.PushToken
 
-class AppAuth (private val prefs: SharedPreferences, private val service:ApiService) {
+
+class AppAuth(private val prefs: SharedPreferences, private val service: ApiService) {
     private val idKey = "id"
 
     private val _authStateFlow: MutableStateFlow<AuthState>
@@ -33,13 +36,13 @@ class AppAuth (private val prefs: SharedPreferences, private val service:ApiServ
         sendPushToken()
     }
 
-     fun sendPushToken(currentPushToken: String? = null) {
-        CoroutineScope(Dispatchers.Default).launch{
-            try{
+    fun sendPushToken(currentPushToken: String? = null) {
+        CoroutineScope(Dispatchers.Default).launch {
+            try {
                 val pushToken = PushToken(currentPushToken ?: Firebase.messaging.token.await())
                 println("sendPushToken pushToken ${pushToken}")
                 service.sendPushToken(pushToken)
-            } catch(e: Exception){
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }

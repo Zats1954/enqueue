@@ -12,8 +12,10 @@ import ru.netology.nmedia.util.SingleLiveEvent
 import javax.inject.Inject
 
 @HiltViewModel
-class AuthViewModel @Inject constructor(private val repository: PostRepository,
-                                        private val auth: AppAuth) : ViewModel() {
+class AuthViewModel @Inject constructor(
+    private val repository: PostRepository,
+    private val auth: AppAuth
+) : ViewModel() {
 
     val data: LiveData<AuthState> = auth
         .authStateFlow
@@ -31,6 +33,7 @@ class AuthViewModel @Inject constructor(private val repository: PostRepository,
     private val _dataState = MutableLiveData<FeedState>()
     val dataState: LiveData<FeedState>
         get() = _dataState
+
     fun loadPosts() {
         viewModelScope.launch {
             _dataState.value = FeedState.Loading
@@ -48,8 +51,9 @@ class AuthViewModel @Inject constructor(private val repository: PostRepository,
         viewModelScope.launch {
             _dataState.value = FeedState.Loading
             try {
-                repository.autorization(login, pass).let{
-                      auth.setAuth(it.id, it.token)}
+                repository.autorization(login, pass).let {
+                    auth.setAuth(it.id, it.token)
+                }
                 _dataState.value = FeedState.Success
             } catch (e: Exception) {
                 myError(e)
@@ -62,8 +66,9 @@ class AuthViewModel @Inject constructor(private val repository: PostRepository,
         viewModelScope.launch {
             _dataState.value = FeedState.Loading
             try {
-                repository.makeUser(login, pass, name).let{
-                    auth.setAuth(it.id, it.token)}
+                repository.makeUser(login, pass, name).let {
+                    auth.setAuth(it.id, it.token)
+                }
                 _dataState.value = FeedState.Success
             } catch (e: Exception) {
                 myError(e)
