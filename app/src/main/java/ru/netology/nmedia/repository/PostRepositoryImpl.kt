@@ -174,6 +174,7 @@ class PostRepositoryImpl @Inject constructor(
         try {
             // TODO: handle this in homework
             val entity = postWorkDao.getById(id)
+            println("processWork ${entity}")
             val response = if (entity.uri != null) {
                 val upload = MediaUpload(Uri.parse(entity.uri).toFile())
                 saveWithAttachment(entity.toDto().copy(id = 0L), upload)

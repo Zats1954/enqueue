@@ -23,6 +23,7 @@ data class PostEntity(
 
     @Embedded
     var attachment: AttachmentEmbeddable?,
+    var uri: String? = null,
 ) {
     fun toDto() = Post(
         id,
@@ -35,7 +36,8 @@ data class PostEntity(
         likes,
         newPost,
         ownedByMe,
-        attachment?.toDto()
+        attachment?.toDto(),
+
     )
 
     companion object {

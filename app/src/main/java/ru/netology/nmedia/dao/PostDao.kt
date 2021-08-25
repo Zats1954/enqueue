@@ -7,7 +7,7 @@ import ru.netology.nmedia.enumeration.AttachmentType
 
 @Dao
 interface PostDao {
-    @Query("SELECT * FROM PostEntity ORDER BY id DESC")
+    @Query("SELECT * FROM PostEntity UNION ALL SELECT * FROM PostWorkEntity ORDER BY id DESC")
     fun getAll(): Flow<List<PostEntity>>
 
     @Query("SELECT * FROM PostEntity WHERE id = :id")
