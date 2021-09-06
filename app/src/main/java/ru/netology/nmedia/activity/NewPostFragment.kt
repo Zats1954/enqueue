@@ -97,7 +97,7 @@ class NewPostFragment : Fragment() {
             if (post.id != 0L) {
                 binding.edit.setText(post.content)
                 post.attachment?.let {
-                    val imagePath = "${BuildConfig.BASE_URL}/media/${post.attachment?.url}"
+                    val imagePath = "${BuildConfig.BASE_URL}/media/${post.attachment.url}"
                     viewModel.changePhoto(Uri.parse(imagePath), File(imagePath))
                 } ?: viewModel.changePhoto(null, null)
             }

@@ -24,14 +24,15 @@
 
         <TextView
             android:id="@+id/author"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="232dp"
+            android:layout_height="20dp"
             android:layout_marginStart="@dimen/common_spacing"
             android:layout_marginEnd="@dimen/common_spacing"
             android:ellipsize="end"
             android:singleLine="true"
             app:layout_constraintBottom_toTopOf="@+id/published"
             app:layout_constraintEnd_toStartOf="@id/menu"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@id/avatar"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed"
@@ -39,16 +40,28 @@
 
         <TextView
             android:id="@+id/published"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="232dp"
+            android:layout_height="19dp"
             android:layout_marginStart="@dimen/common_spacing"
             android:layout_marginEnd="@dimen/common_spacing"
             android:layout_marginBottom="@dimen/common_spacing"
             app:layout_constraintBottom_toBottomOf="@id/header"
             app:layout_constraintEnd_toStartOf="@id/menu"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@id/avatar"
             app:layout_constraintTop_toBottomOf="@id/author"
             tools:text="@sample/posts.json/data/published" />
+
+        <ImageView
+            android:id="@+id/imageConnect"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:visibility="visible"
+            app:layout_constraintEnd_toStartOf="@id/menu"
+            app:layout_constraintStart_toEndOf="@id/author"
+            app:layout_constraintTop_toTopOf="@id/menu"
+            app:srcCompat="@mipmap/ic_connect"
+            tools:ignore="MissingConstraints" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/menu"
@@ -87,7 +100,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:contentDescription="postImage"
+            android:contentDescription="connectImage"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"

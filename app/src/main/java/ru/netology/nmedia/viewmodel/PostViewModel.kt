@@ -25,6 +25,7 @@ import ru.netology.nmedia.work.RemovePostWorker
 import ru.netology.nmedia.work.SavePostWorker
 import java.io.File
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 private val noPhoto = PhotoModel()
@@ -57,7 +58,7 @@ class PostViewModel @Inject constructor(
                         posts.isEmpty()
                     )
                 }
-//            FeedState.Success
+            FeedState.Success
 
             answer
         }.asLiveData(Dispatchers.Default)
@@ -75,7 +76,7 @@ class PostViewModel @Inject constructor(
         get() = _photo
 
     val newer: LiveData<Int> = repository.data.flatMapLatest {
-        val lastId = it.firstOrNull()?.id ?: 0L
+        val lastId = it.maxOfOrNull {it.id} ?: 0L
         val newPosts = repository.getNewerCount(lastId)
         countNewPosts = repository.countNew
         if (lastId == 0L)
@@ -125,7 +126,8 @@ class PostViewModel @Inject constructor(
             edited.value?.let {
                 try {
                     val id = repository.saveWork(
-                        it, _photo.value?.uri?.let { MediaUpload(it.toFile()) }
+                        it, _photo.value?.uri?.let { uri ->
+                            MediaUpload(uri.toFile()) }
                     )
                     val data = workDataOf(SavePostWorker.postKey to id)
                     val constraints = Constraints.Builder()
@@ -134,6 +136,7 @@ class PostViewModel @Inject constructor(
                     val request = OneTimeWorkRequestBuilder<SavePostWorker>()
                         .setInputData(data)
                         .setConstraints(constraints)
+                        .setInitialDelay(10, TimeUnit.SECONDS)
                         .build()
                     workManager.enqueue(request)
                     _dataState.value = FeedState.Success
@@ -150,7 +153,7 @@ class PostViewModel @Inject constructor(
     fun edit(post: Post) {
         edited.value = post
         post.attachment?.let {
-            changePhoto(Uri.parse(post.attachment?.url), File(post.attachment?.url))
+            changePhoto(Uri.parse(post.attachment.url), File(post.attachment.url))
         }
     }
 

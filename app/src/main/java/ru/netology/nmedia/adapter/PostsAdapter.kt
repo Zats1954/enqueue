@@ -1,5 +1,6 @@
 package ru.netology.nmedia.adapter
 
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.PopupMenu
@@ -12,6 +13,9 @@ import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 
 interface OnInteractionListener {
@@ -44,9 +48,12 @@ class PostViewHolder(
         binding.apply {
             menu.isVisible = post.ownedByMe
             author.text = post.author
-            published.text = post.published.toString()
+            val pattern = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+            published.text = pattern.format(post.published)
             content.text = post.content
             card.isVisible = !post.newPost
+            println("******************************* serverId = ${post.serverId}")
+            imageConnect.isVisible = post.serverId
             post.attachment?.let {
                 imageView.isVisible = true
                 Glide.with(imageView)
@@ -67,6 +74,7 @@ class PostViewHolder(
                 .timeout(10_000)
                 .into(avatar)
             // в адаптере
+            like.isActivated = post.serverId
             like.isChecked = post.likedByMe
             like.text = "${post.likes}"
 

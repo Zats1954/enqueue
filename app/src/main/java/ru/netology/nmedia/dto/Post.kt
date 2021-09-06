@@ -16,6 +16,7 @@ data class Post(
     val likes: Int = 0,
     val newPost: Boolean = true,
     val ownedByMe: Boolean = false,
+    val serverId: Boolean = true,
     val attachment: Attachment? = null
 ) : Parcelable
 
