@@ -20,13 +20,14 @@ data class PostWorkEntity(
     val likes: Int = 0,
     var newPost: Boolean = true,
     val ownedByMe: Boolean = false,
+    val serverId: Boolean = false,
     @Embedded
     var attachment: AttachmentEmbeddable?,
     var uri: String? = null,
 ) {
     fun toDto() = Post(
         id, authorId, author, authorAvatar, content, published, likedByMe, likes, newPost,
-        ownedByMe, attachment?.toDto(),
+        ownedByMe, serverId, attachment?.toDto(),
     )
 
     companion object {
@@ -42,6 +43,7 @@ data class PostWorkEntity(
                 dto.likes,
                 dto.newPost,
                 dto.ownedByMe,
+                dto.serverId,
                 AttachmentEmbeddable.fromDto(dto.attachment)
             )
     }

@@ -45,8 +45,8 @@ class PostRepositoryImpl @Inject constructor(
             dao.removeAll()
             val response = service.getAll()
             if (!response.isSuccessful) {
-                throw ApiError(response.code(), response.message())
-            }
+                throw ApiError(response.code(), response.message())}
+
             val body = response.body() ?: throw ApiError(response.code(), response.message())
             dao.insert(body.toEntity())
         } catch (e: IOException) {
@@ -164,7 +164,8 @@ class PostRepositoryImpl @Inject constructor(
                     this.uri = upload.file.toUri().toString()
                 }
             }
-            return postWorkDao.insert(entity)
+            val tmpPost = postWorkDao.insert(entity)
+            return tmpPost
         } catch (e: Exception) {
             throw UnknownError
         }
