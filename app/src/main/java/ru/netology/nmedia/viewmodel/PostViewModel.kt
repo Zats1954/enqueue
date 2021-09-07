@@ -75,8 +75,8 @@ class PostViewModel @Inject constructor(
     val photo: LiveData<PhotoModel>
         get() = _photo
 
-    val newer: LiveData<Int> = repository.data.flatMapLatest {
-        val lastId = it.maxOfOrNull {it.id} ?: 0L
+    val newer: LiveData<Int> = repository.data.flatMapLatest {posts ->
+        val lastId = posts.maxOfOrNull {it.id} ?: 0L
         val newPosts = repository.getNewerCount(lastId)
         countNewPosts = repository.countNew
         if (lastId == 0L)
