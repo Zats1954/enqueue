@@ -8,14 +8,20 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedState
+import ru.netology.nmedia.util.SingleLiveEvent
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 @AndroidEntryPoint
@@ -23,6 +29,10 @@ class FeedFragment : Fragment() {
     private val viewModel: PostViewModel by viewModels(
         ownerProducer = ::requireParentFragment,
     )
+
+//private val _needRefresh = SingleLiveEvent<Unit>()
+//        val needRefresh: LiveData<Unit>
+//            get() = _needRefresh
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,15 +50,19 @@ class FeedFragment : Fragment() {
                 findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, bundle)
                 viewModel.removeById(post.id)
                 viewModel.refreshPosts()
+//                _needRefresh.value = Unit
             }
 
             override fun onLike(post: Post) {
                 viewModel.likeById(post.id)
                 viewModel.refreshPosts()
+//                _needRefresh.value = Unit
             }
 
             override fun onRemove(post: Post) {
                 viewModel.removeById(post.id)
+//                viewModel.refreshPosts()
+//                _needRefresh.value = Unit
             }
 
             override fun onShare(post: Post) {
@@ -73,6 +87,10 @@ class FeedFragment : Fragment() {
 
         binding.list.adapter = adapter
 
+//        needRefresh.observe(viewLifecycleOwner){
+//            adapter.refresh()
+//        }
+
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 FeedState.Loading -> {
@@ -95,9 +113,22 @@ class FeedFragment : Fragment() {
             }
         }
 
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            adapter.submitList(state.posts)
-            binding.emptyText.isVisible = state.empty
+        lifecycleScope.launchWhenCreated {
+            viewModel.data.collectLatest { posts ->
+                adapter.submitData(posts)
+            }
+        }
+        lifecycleScope.launchWhenCreated {
+            adapter.loadStateFlow.collectLatest { state ->
+                binding.swiperefresh.isRefreshing = state.append is LoadState.Loading
+                        || state.prepend is LoadState.Loading
+                        || state.refresh is LoadState.Loading
+
+            }
+        }
+
+        binding.swiperefresh.setOnRefreshListener {
+            adapter.refresh()
         }
 
         binding.retryButton.setOnClickListener {
@@ -116,15 +147,15 @@ class FeedFragment : Fragment() {
             binding.newsButton.isVisible = false
             viewModel.clearCountNews()
             viewModel.loadPosts()
+//            adapter.refresh()
         }
 
-        viewModel.newer.observe(viewLifecycleOwner) {
-            if (viewModel.countNewPosts > 0) {
-                binding.newsButton.text = "${viewModel.countNewPosts} new posts"
-                binding.newsButton.isVisible = true
-            }
-        }
-
+//        viewModel.newer.observe(viewLifecycleOwner) {
+//            if (viewModel.countNewPosts > 0) {
+//                binding.newsButton.text = "${viewModel.countNewPosts} new posts"
+//                binding.newsButton.isVisible = true
+//            }
+//        }
         return binding.root
     }
 }

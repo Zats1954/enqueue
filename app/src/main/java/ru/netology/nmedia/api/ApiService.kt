@@ -18,7 +18,14 @@ interface ApiService {
     suspend fun getById(@Path("id") id: Long): Response<Post>
 
     @GET("posts/{id}/newer")
-    suspend fun getNewer(@Path("id") id: Long): List<Post>
+    suspend fun getBefore(@Path("id") id: Long): List<Post>
+
+    @GET("posts/latest")
+    suspend fun getLatest(@Query("count") count: Int): Response<List<Post>>
+
+    @GET("posts/{id}/before")
+    suspend fun getBefore(@Path("id") id: Long, @Query("count") count: Int):
+            Response<List<Post>>
 
     @POST("posts")
     suspend fun save(@Body post: Post): Response<Post>

@@ -3,12 +3,13 @@ package ru.netology.nmedia.viewmodel
 import android.net.Uri
 import androidx.core.net.toFile
 import androidx.lifecycle.*
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.map
 import androidx.work.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
@@ -48,20 +49,18 @@ class PostViewModel @Inject constructor(
         newPost = false
     )
 
-    val data: LiveData<FeedModel> = auth
+    private val cached = repository.data.cachedIn(viewModelScope)
+
+
+    val data: Flow<PagingData<Post>> = auth
         .authStateFlow
         .flatMapLatest { (myId, _) ->
-            val answer = repository.data
-                .map { posts ->
-                    FeedModel(
-                        posts.map { it.copy(ownedByMe = it.authorId == myId) },
-                        posts.isEmpty()
-                    )
+            val answer = cached.map { posts ->
+                           posts.map { it.copy(ownedByMe = it.authorId == myId) }
                 }
             FeedState.Success
-
             answer
-        }.asLiveData(Dispatchers.Default)
+        }
 
     private val _dataState = MutableLiveData<FeedState>()
     val dataState: LiveData<FeedState>
@@ -75,16 +74,18 @@ class PostViewModel @Inject constructor(
     val photo: LiveData<PhotoModel>
         get() = _photo
 
-    val newer: LiveData<Int> = repository.data.flatMapLatest {posts ->
-        val lastId = posts.maxOfOrNull {it.id} ?: 0L
-        val newPosts = repository.getNewerCount(lastId)
-        countNewPosts = repository.countNew
-        if (lastId == 0L)
-            flowOf(0)
-        else
-            newPosts
-    }.catch { e -> e.printStackTrace() }
-        .asLiveData(Dispatchers.Default)
+//    val newer: LiveData<Int> =
+//        adapter.submit
+//       repository.data.flatMapLatest {posts ->
+//        val lastId = posts.maxOfOrNull {it.id} ?: 0L
+//        val newPosts = repository.getNewerCount(lastId)
+//        countNewPosts = repository.countNew
+//        if (lastId == 0L)
+//            flowOf(0)
+//        else
+//            newPosts
+//    }.catch { e -> e.printStackTrace() }
+//        .asLiveData(Dispatchers.Default)
 
     val edited = MutableLiveData(empty)
     var errorMessage: String = ""
@@ -238,3 +239,4 @@ class PostViewModel @Inject constructor(
         _photo.value = PhotoModel(uri, file)
     }
 }
+
