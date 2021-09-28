@@ -1,10 +1,10 @@
-name: CI HILT1
+name: CI ARCH
 
 on:
   push:
-    branches: [ hilt1 ]
+    branches: [ arch ]
   pull_request:
-    branches: [ hilt1 ]
+    branches: [ arch ]
 
 jobs:
   build:
