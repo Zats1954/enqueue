@@ -63,6 +63,7 @@ class ApiModule {
         .client(client)
         .build()
 
+    @Singleton
     @Provides
     fun provideApi(retrofit: Retrofit): ApiService = retrofit.create()
 

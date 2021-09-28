@@ -8,16 +8,16 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import androidx.work.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.enumeration.AttachmentType
-import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedState
 import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepository
@@ -26,7 +26,6 @@ import ru.netology.nmedia.work.RemovePostWorker
 import ru.netology.nmedia.work.SavePostWorker
 import java.io.File
 import java.io.IOException
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 private val noPhoto = PhotoModel()
@@ -35,6 +34,7 @@ private val noPhoto = PhotoModel()
 class PostViewModel @Inject constructor(
     private val repository: PostRepository,
     private val workManager: WorkManager,
+    private val dao: PostDao,
     auth: AppAuth
 ) : ViewModel() {
     val empty = Post(
@@ -49,18 +49,36 @@ class PostViewModel @Inject constructor(
         newPost = false
     )
 
+    private val _authChanged = SingleLiveEvent<Unit>()
+    val authChanged: LiveData<Unit>
+        get() = _authChanged
+
     private val cached = repository.data.cachedIn(viewModelScope)
 
+//************** для загрузки из БД
+//    private val saved = dao.getAll().asLiveData().value
 
     val data: Flow<PagingData<Post>> = auth
         .authStateFlow
         .flatMapLatest { (myId, _) ->
+            _authChanged.value = Unit   // вызов перезагрузки постов с сервера
             val answer = cached.map { posts ->
-                           posts.map { it.copy(ownedByMe = it.authorId == myId) }
-                }
+                posts.map { it.copy(ownedByMe = it.authorId == myId) }
+            }
             FeedState.Success
             answer
         }
+
+    //************** для загрузки из БД
+//    val data: Flow<List<Post>>  = auth
+//        .authStateFlow
+//        .flatMapLatest { (myId, _) ->
+//            val answer = saved?.map { posts ->
+//                posts.copy(ownedByMe = posts.authorId == myId)}?.toDto()
+//            FeedState.Success
+//           answer?.let{
+//            flowOf(it)} ?: flowOf()
+//        }
 
     private val _dataState = MutableLiveData<FeedState>()
     val dataState: LiveData<FeedState>
@@ -74,22 +92,10 @@ class PostViewModel @Inject constructor(
     val photo: LiveData<PhotoModel>
         get() = _photo
 
-//    val newer: LiveData<Int> =
-//        adapter.submit
-//       repository.data.flatMapLatest {posts ->
-//        val lastId = posts.maxOfOrNull {it.id} ?: 0L
-//        val newPosts = repository.getNewerCount(lastId)
-//        countNewPosts = repository.countNew
-//        if (lastId == 0L)
-//            flowOf(0)
-//        else
-//            newPosts
-//    }.catch { e -> e.printStackTrace() }
-//        .asLiveData(Dispatchers.Default)
-
+    var newer = repository.getNewerCount().asLiveData()
+    var countNewPosts = repository.countNew
     val edited = MutableLiveData(empty)
     var errorMessage: String = ""
-    var countNewPosts: Int = 0
 
     init {
         loadPosts()
@@ -128,14 +134,15 @@ class PostViewModel @Inject constructor(
                 try {
                     val id = repository.saveWork(
                         it, _photo.value?.uri?.let { uri ->
-                            MediaUpload(uri.toFile()) }
+                            MediaUpload(uri.toFile())
+                        }
                     )
-                    val data = workDataOf(SavePostWorker.postKey to id)
+                    val saveData = workDataOf(SavePostWorker.postKey to id)
                     val constraints = Constraints.Builder()
                         .setRequiredNetworkType(NetworkType.CONNECTED)
                         .build()
                     val request = OneTimeWorkRequestBuilder<SavePostWorker>()
-                        .setInputData(data)
+                        .setInputData(saveData)
                         .setConstraints(constraints)
 //                        .setInitialDelay(10, TimeUnit.SECONDS)
                         .build()
@@ -186,7 +193,6 @@ class PostViewModel @Inject constructor(
     }
 
     fun removeById(id: Long) {
-
         try {
             viewModelScope.launch {
                 try {

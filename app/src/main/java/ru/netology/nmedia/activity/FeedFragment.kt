@@ -9,7 +9,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
@@ -30,9 +29,9 @@ class FeedFragment : Fragment() {
         ownerProducer = ::requireParentFragment,
     )
 
-//private val _needRefresh = SingleLiveEvent<Unit>()
-//        val needRefresh: LiveData<Unit>
-//            get() = _needRefresh
+    private val _needRefresh = SingleLiveEvent<Unit>()
+    val needRefresh: LiveData<Unit>
+        get() = _needRefresh
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,7 +41,6 @@ class FeedFragment : Fragment() {
         val binding = FragmentFeedBinding.inflate(inflater, container, false)
 
         val adapter = PostsAdapter(object : OnInteractionListener {
-
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
                 val bundle = Bundle()
@@ -50,19 +48,19 @@ class FeedFragment : Fragment() {
                 findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, bundle)
                 viewModel.removeById(post.id)
                 viewModel.refreshPosts()
-//                _needRefresh.value = Unit
+                _needRefresh.value = Unit
             }
 
             override fun onLike(post: Post) {
                 viewModel.likeById(post.id)
                 viewModel.refreshPosts()
-//                _needRefresh.value = Unit
+                _needRefresh.value = Unit
             }
 
             override fun onRemove(post: Post) {
                 viewModel.removeById(post.id)
-//                viewModel.refreshPosts()
-//                _needRefresh.value = Unit
+                _needRefresh.value = Unit
+                viewModel.refreshPosts()
             }
 
             override fun onShare(post: Post) {
@@ -87,9 +85,13 @@ class FeedFragment : Fragment() {
 
         binding.list.adapter = adapter
 
-//        needRefresh.observe(viewLifecycleOwner){
-//            adapter.refresh()
-//        }
+//         val lastPost = {adapter.snapshot().items.maxOf{ it.published }}
+
+
+        needRefresh.observe(viewLifecycleOwner) {
+            adapter.refresh()
+            binding.list.smoothScrollToPosition(0)
+        }
 
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             when (state) {
@@ -113,6 +115,10 @@ class FeedFragment : Fragment() {
             }
         }
 
+        viewModel.authChanged.observe(viewLifecycleOwner) {
+            _needRefresh.value = Unit
+        }
+
         lifecycleScope.launchWhenCreated {
             viewModel.data.collectLatest { posts ->
                 adapter.submitData(posts)
@@ -123,12 +129,12 @@ class FeedFragment : Fragment() {
                 binding.swiperefresh.isRefreshing = state.append is LoadState.Loading
                         || state.prepend is LoadState.Loading
                         || state.refresh is LoadState.Loading
-
             }
         }
 
         binding.swiperefresh.setOnRefreshListener {
             adapter.refresh()
+            binding.list.smoothScrollToPosition(0)
         }
 
         binding.retryButton.setOnClickListener {
@@ -147,15 +153,15 @@ class FeedFragment : Fragment() {
             binding.newsButton.isVisible = false
             viewModel.clearCountNews()
             viewModel.loadPosts()
-//            adapter.refresh()
+            adapter.refresh()
         }
 
-//        viewModel.newer.observe(viewLifecycleOwner) {
-//            if (viewModel.countNewPosts > 0) {
-//                binding.newsButton.text = "${viewModel.countNewPosts} new posts"
-//                binding.newsButton.isVisible = true
-//            }
-//        }
+        viewModel.newer.observe(viewLifecycleOwner) {
+            if (viewModel.countNewPosts > 0) {
+                binding.newsButton.text = "${viewModel.countNewPosts} new posts"
+                binding.newsButton.isVisible = true
+            }
+        }
         return binding.root
     }
 }

@@ -4,11 +4,9 @@ package ru.netology.nmedia.repository
 import android.net.Uri
 import androidx.core.net.toFile
 import androidx.core.net.toUri
+import androidx.lifecycle.asLiveData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingData
-import androidx.paging.PagingSource
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import okhttp3.MultipartBody
@@ -29,7 +27,9 @@ import ru.netology.nmedia.model.NetworkError
 import ru.netology.nmedia.model.UnknownError
 import java.io.IOException
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class PostRepositoryImpl @Inject constructor(
     private val dao: PostDao,
     private val postWorkDao: PostWorkDao,
@@ -43,16 +43,16 @@ class PostRepositoryImpl @Inject constructor(
 
     override val data = Pager(
         PagingConfig(pageSize = 10),
-        pagingSourceFactory =   {PostPagingSource(service)}
+        pagingSourceFactory = { PostPagingSource(service) }
     ).flow
 
     override suspend fun getAll() {
         try {
             dao.removeAll()
-            val response = service.getAll()
-//            val response = service.getLatest(10)
+            val response = service.getLatest(10)
             if (!response.isSuccessful) {
-                throw ApiError(response.code(), response.message())}
+                throw ApiError(response.code(), response.message())
+            }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
             dao.insert(body.toEntity())
         } catch (e: IOException) {
@@ -66,21 +66,24 @@ class PostRepositoryImpl @Inject constructor(
         return dao.getById(id).toDto()
     }
 
-//    override fun getNewerCount(id: Long): Flow<Int> = flow {
-//        while (true) {
-//            try {
-//                val newer = service.getNewer(id).map(PostEntity.Companion::fromDto)
-//                dao.insert(newer.map {
-//                    val value = it.copy(newPost = true)
-//                    value
-//                })
-//                countNew = newer.size
-//                emit(newer.size)
-//                delay(30_000L)
-//            } catch (e: IOException) {
-//            }
-//        }
-//    }
+    override fun getNewerCount(): Flow<Int> = flow {
+        while (true) {
+            try {
+                val lastId = dao.getPosts().map { posts ->
+                    posts.map { it.id }
+                }.asLiveData().value?.maxOrNull() ?: 0L
+                val newer = service.getNewer(lastId).map(PostEntity.Companion::fromDto)
+                dao.insert(newer.map {
+                    val value = it.copy(newPost = true)
+                    value
+                })
+                countNew = newer.size
+                emit(newer.size)
+                delay(30_000L)
+            } catch (e: IOException) {
+            }
+        }
+    }
 
     override suspend fun save(post: Post): Response<Post> {
         return service.save(post)
@@ -179,7 +182,6 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun processWork(id: Long) {
         try {
-            // TODO: handle this in homework
             val entity = postWorkDao.getById(id)
             println("processWork ${entity}")
             val response = if (entity.uri != null) {
@@ -194,7 +196,6 @@ class PostRepositoryImpl @Inject constructor(
             } else {
                 return@processWork
             }
-
         } catch (e: Exception) {
             throw UnknownError
         }

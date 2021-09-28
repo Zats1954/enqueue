@@ -13,11 +13,15 @@ import kotlinx.coroutines.tasks.await
 import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.api.token
 import ru.netology.nmedia.dto.PushToken
+import javax.inject.Inject
+import javax.inject.Singleton
 
-
-class AppAuth(private val prefs: SharedPreferences, private val service: ApiService) {
+@Singleton
+class AppAuth @Inject constructor(
+    private val prefs: SharedPreferences,
+    private val service: ApiService
+) {
     private val idKey = "id"
-
     private val _authStateFlow: MutableStateFlow<AuthState>
 
     init {
@@ -42,6 +46,7 @@ class AppAuth(private val prefs: SharedPreferences, private val service: ApiServ
                 val pushToken = PushToken(currentPushToken ?: Firebase.messaging.token.await())
                 println("sendPushToken pushToken ${pushToken}")
                 service.sendPushToken(pushToken)
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }

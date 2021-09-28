@@ -10,6 +10,9 @@ interface PostDao {
     @Query("SELECT * FROM PostEntity UNION ALL SELECT * FROM PostWorkEntity ORDER BY published DESC")
     fun getAll(): Flow<List<PostEntity>>
 
+    @Query("SELECT * FROM PostEntity ORDER BY published DESC")
+    fun getPosts(): Flow<List<PostEntity>>
+
     @Query("SELECT * FROM PostEntity WHERE id = :id")
     suspend fun getById(id: Long): PostEntity
 
@@ -46,6 +49,9 @@ interface PostDao {
 
     @Query("SELECT COUNT(id) FROM PostEntity WHERE newPost = 'true'")
     suspend fun countNews(): Int
+
+    @Query("SELECT COUNT(id) FROM PostEntity")
+    suspend fun count(): Int
 }
 
 class Converters {

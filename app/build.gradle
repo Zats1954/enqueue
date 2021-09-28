@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'dagger.hilt.android.plugin'
 
@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "ru.netology.nmedia"
-        minSdkVersion 22
+        minSdkVersion 23
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -20,8 +20,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility "1.8"
+        targetCompatibility "1.8"
     }
 
     kotlinOptions {
@@ -47,14 +47,14 @@ android {
 }
 
 dependencies {
-    def core_version = "1.3.2"
-    def appcompat_version = "1.2.0"
+    def core_version = "1.6.0"
+    def appcompat_version = "1.3.1"
     def constraintlayout_version = "2.0.4"
-    def recyclerview_version = "1.2.0"
+    def recyclerview_version = "1.2.1"
     def junit_version = "4.13.2"
-    def ext_junit_version = "1.1.2"
-    def espresso_core_version = "3.3.0"
-    def activity_version = "1.2.3"
+    def ext_junit_version = "1.1.3"
+    def espresso_core_version = "3.4.0"
+    def activity_version = "1.3.1"
     def lifecycle_version = "2.3.1"
     def mdc_version = "1.3.0"
     def gson_version = "2.8.6"
@@ -72,14 +72,15 @@ dependencies {
     def workmanager_version = "2.5.0"
     def hilt_work_version = "1.0.0"
     def paging_version = "3.0.1"
+    def swiperefreshlayout_version = "1.1.0"
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "androidx.core:core-ktx:1.6.0"
-    implementation "androidx.appcompat:appcompat:1.3.1"
+    implementation "androidx.core:core-ktx:$core_version"
+    implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
-    implementation "androidx.recyclerview:recyclerview:1.2.1"
-    implementation "androidx.activity:activity-ktx:1.3.1"
+    implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
+    implementation "androidx.activity:activity-ktx:$activity_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
@@ -108,9 +109,9 @@ dependencies {
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
     implementation "androidx.hilt:hilt-work:$hilt_work_version"
     implementation "androidx.paging:paging-runtime-ktx:$paging_version"
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:$swiperefreshlayout_version"
 
     testImplementation "junit:junit:$junit_version"
-    androidTestImplementation "androidx.test.ext:junit:1.1.3"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.4.0"
+    androidTestImplementation "androidx.test.ext:$ext_junit_version"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_core_version"
 }

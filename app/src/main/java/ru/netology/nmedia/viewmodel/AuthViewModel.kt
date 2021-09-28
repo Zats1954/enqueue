@@ -60,6 +60,7 @@ class AuthViewModel @Inject constructor(
                 _dataState.value = FeedState.Error
             }
         }
+
     }
 
     fun signUp(login: String, pass: String, name: String) {
