@@ -156,12 +156,12 @@ class FeedFragment : Fragment() {
             adapter.refresh()
         }
 
-        viewModel.newer.observe(viewLifecycleOwner) {
-            if (viewModel.countNewPosts > 0) {
-                binding.newsButton.text = "${viewModel.countNewPosts} new posts"
-                binding.newsButton.isVisible = true
-            }
-        }
+//        viewModel.newer.observe(viewLifecycleOwner) {
+//            if (viewModel.countNewPosts > 0) {
+//                binding.newsButton.text = "${viewModel.countNewPosts} new posts"
+//                binding.newsButton.isVisible = true
+//            }
+//        }
         return binding.root
     }
 }

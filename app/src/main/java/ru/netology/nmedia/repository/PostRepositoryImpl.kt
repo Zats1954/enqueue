@@ -5,15 +5,14 @@ import android.net.Uri
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.lifecycle.asLiveData
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
+import androidx.paging.*
+import com.google.firebase.messaging.ktx.remoteMessage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import retrofit2.Response
 import ru.netology.nmedia.api.ApiService
-import ru.netology.nmedia.api.PostPagingSource
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dao.PostWorkDao
 import ru.netology.nmedia.dto.*
@@ -41,10 +40,17 @@ class PostRepositoryImpl @Inject constructor(
             field = value
         }
 
-    override val data = Pager(
-        PagingConfig(pageSize = 10),
-        pagingSourceFactory = { PostPagingSource(service) }
-    ).flow
+    @ExperimentalPagingApi
+    override val data: Flow<PagingData<Post>> = Pager(
+        config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+        remoteMediator = PostRemoteMediator(service, dao),
+        pagingSourceFactory = dao::getPagingSource
+    ).flow.map{
+        println("*****************************************************************")
+        println("************************************** data    PostRepositoryImpl")
+        println("*****************************************************************")
+        it.map (PostEntity::toDto)
+    }
 
     override suspend fun getAll() {
         try {

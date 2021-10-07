@@ -55,9 +55,6 @@ class PostViewModel @Inject constructor(
 
     private val cached = repository.data.cachedIn(viewModelScope)
 
-//************** для загрузки из БД
-//    private val saved = dao.getAll().asLiveData().value
-
     val data: Flow<PagingData<Post>> = auth
         .authStateFlow
         .flatMapLatest { (myId, _) ->
@@ -68,17 +65,6 @@ class PostViewModel @Inject constructor(
             FeedState.Success
             answer
         }
-
-    //************** для загрузки из БД
-//    val data: Flow<List<Post>>  = auth
-//        .authStateFlow
-//        .flatMapLatest { (myId, _) ->
-//            val answer = saved?.map { posts ->
-//                posts.copy(ownedByMe = posts.authorId == myId)}?.toDto()
-//            FeedState.Success
-//           answer?.let{
-//            flowOf(it)} ?: flowOf()
-//        }
 
     private val _dataState = MutableLiveData<FeedState>()
     val dataState: LiveData<FeedState>
@@ -92,7 +78,7 @@ class PostViewModel @Inject constructor(
     val photo: LiveData<PhotoModel>
         get() = _photo
 
-    var newer = repository.getNewerCount().asLiveData()
+//    var newer = repository.getNewerCount().asLiveData()
     var countNewPosts = repository.countNew
     val edited = MutableLiveData(empty)
     var errorMessage: String = ""

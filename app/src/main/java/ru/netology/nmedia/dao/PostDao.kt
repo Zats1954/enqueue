@@ -1,14 +1,16 @@
 package ru.netology.nmedia.dao
 
+import androidx.paging.PagingSource
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.enumeration.AttachmentType
 
+
 @Dao
 interface PostDao {
     @Query("SELECT * FROM PostEntity UNION ALL SELECT * FROM PostWorkEntity ORDER BY published DESC")
-    fun getAll(): Flow<List<PostEntity>>
+    fun getPagingSource(): PagingSource<Int, PostEntity>
 
     @Query("SELECT * FROM PostEntity ORDER BY published DESC")
     fun getPosts(): Flow<List<PostEntity>>
@@ -41,7 +43,7 @@ interface PostDao {
     @Query("DELETE FROM PostEntity WHERE id = :id")
     suspend fun removeById(id: Long)
 
-    @Query("DELETE FROM PostEntity ")
+    @Query("DELETE FROM PostEntity")
     suspend fun removeAll()
 
     @Query("UPDATE PostEntity SET newPost = 'false' WHERE newPost = 'true'")
