@@ -12,7 +12,7 @@ interface PostDao {
     @Query("SELECT * FROM PostEntity UNION ALL SELECT * FROM PostWorkEntity ORDER BY published DESC")
     fun getPagingSource(): PagingSource<Int, PostEntity>
 
-    @Query("SELECT * FROM PostEntity ORDER BY published DESC")
+    @Query("SELECT * FROM PostEntity ORDER BY id DESC")
     fun getPosts(): Flow<List<PostEntity>>
 
     @Query("SELECT * FROM PostEntity WHERE id = :id")
