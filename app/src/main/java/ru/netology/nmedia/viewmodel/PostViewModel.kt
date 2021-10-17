@@ -34,7 +34,7 @@ private val noPhoto = PhotoModel()
 class PostViewModel @Inject constructor(
     private val repository: PostRepository,
     private val workManager: WorkManager,
-    private val dao: PostDao,
+//    private val dao: PostDao,
     auth: AppAuth
 ) : ViewModel() {
     val empty = Post(
@@ -79,7 +79,6 @@ class PostViewModel @Inject constructor(
         get() = _photo
 
     var newer = repository.getNewerCount().asLiveData()
-    var countNewPosts = repository.countNew
     val edited = MutableLiveData(empty)
     var errorMessage: String = ""
 
@@ -220,11 +219,6 @@ class PostViewModel @Inject constructor(
                 _dataState.value = FeedState.Error
             }
         }
-    }
-
-    fun clearCountNews() {
-        countNewPosts = 0
-        repository.countNew = 0
     }
 
     fun changePhoto(uri: Uri?, file: File?) {

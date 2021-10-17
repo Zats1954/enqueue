@@ -9,7 +9,6 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.dto.Token
 
 interface PostRepository {
-    var countNew: Int
     val data: Flow<PagingData<Post>>
     suspend fun getAll()
     suspend fun getById(id: Long): Post

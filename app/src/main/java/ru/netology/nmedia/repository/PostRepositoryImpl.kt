@@ -38,21 +38,12 @@ class PostRepositoryImpl @Inject constructor(
     private val db: AppDb,
     private val postKeyDao: PostKeyDao
 ) : PostRepository {
-    override var countNew: Int = 0
-        get() = field
-        set(value) {
-            field = value
-        }
-
     @ExperimentalPagingApi
     override val data: Flow<PagingData<Post>> = Pager(
         config = PagingConfig(pageSize = 10, enablePlaceholders = false),
         remoteMediator = PostRemoteMediator(service, dao, db, postKeyDao),
         pagingSourceFactory = dao::getPagingSource
     ).flow.map{
-//        println("*****************************************************************")
-//        println("************************************** data    PostRepositoryImpl")
-//        println("*****************************************************************")
         it.map (PostEntity::toDto)
     }
 
@@ -79,17 +70,13 @@ class PostRepositoryImpl @Inject constructor(
     override fun getNewerCount(): Flow<Int> = flow {
         while (true) {
             try {
-                val lastId = dao.getPosts().map { posts ->
-                    posts.map { it.id }
-                }.asLiveData().value?.maxOrNull() ?: 0L
+                val lastId = postKeyDao.max() ?: 0L
                 val newer = service.getNewer(lastId).map(PostEntity.Companion::fromDto)
                 dao.insert(newer.map {
                     val value = it.copy(newPost = true)
                     value
                 })
-                countNew = newer.size
                 emit(newer.size)
-
                 delay(30_000L)
             } catch (e: IOException) {
             }

@@ -151,15 +151,16 @@ class FeedFragment : Fragment() {
         binding.newsButton.setOnClickListener {
             viewModel.showNews()
             binding.newsButton.isVisible = false
-            viewModel.clearCountNews()
             viewModel.loadPosts()
             adapter.refresh()
         }
 
 //        viewModel.newer.observe(viewLifecycleOwner) {
-//            if (viewModel.countNewPosts > 0) {
-//                binding.newsButton.text = "${viewModel.countNewPosts} new posts"
-//                binding.newsButton.isVisible = true
+//            viewModel.newer.value?.let {
+//                if (it > 0) {
+//                    binding.newsButton.text = "${it} new posts"
+//                    binding.newsButton.isVisible = true
+//                }
 //            }
 //        }
         return binding.root

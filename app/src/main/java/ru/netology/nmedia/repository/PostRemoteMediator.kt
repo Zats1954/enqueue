@@ -28,11 +28,14 @@ class PostRemoteMediator(
             val response = when (loadType) {
                  LoadType.REFRESH  -> {
 //                     dao.removeAll()
+                     println("***************************************** load REFRESH")
                     api.getLatest(pageSize)}
                  LoadType.APPEND -> {
+                     println("***************************************** load APPEND")
                      val id = postKeyDao.min() ?: return MediatorResult.Success(false)
                      api.getBefore(id, pageSize)}
                  LoadType.PREPEND -> {
+                     println("***************************************** load PREPEND")
 //                     val id = postKeyDao.max() ?:
                        return MediatorResult.Success(true)
 //                     api.getAfter(id, pageSize)
@@ -54,6 +57,7 @@ class PostRemoteMediator(
             db.withTransaction {
                 when(loadType){
                     LoadType.REFRESH -> {
+                        println("***************************************** Transaction REFRESH")
                         postKeyDao.insert(
                             listOf(
                                 PostRemoteKeyEntity(
@@ -70,14 +74,16 @@ class PostRemoteMediator(
 //                        dao.removeAll()
                     }
                     LoadType.PREPEND -> {
-                        postKeyDao.insert(
-                           PostRemoteKeyEntity(
-                                    PostRemoteKeyEntity.Type.PREPEND,
-                                    data.first().id
-                                )
-                        )
+                        println("***************************************** Transaction PREPEND")
+//                        postKeyDao.insert(
+//                           PostRemoteKeyEntity(
+//                                    PostRemoteKeyEntity.Type.PREPEND,
+//                                    data.first().id
+//                                )
+//                        )
                     }
                     LoadType.APPEND -> {
+                        println("***************************************** Transaction APPEND")
                         postKeyDao.insert(
                             PostRemoteKeyEntity(
                                 PostRemoteKeyEntity.Type.APPEND,
