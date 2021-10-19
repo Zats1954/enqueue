@@ -78,7 +78,7 @@ class PostViewModel @Inject constructor(
     val photo: LiveData<PhotoModel>
         get() = _photo
 
-    var newer = repository.getNewerCount().asLiveData()
+//    var newer = repository.getNewerCount().asLiveData()
     val edited = MutableLiveData(empty)
     var errorMessage: String = ""
 

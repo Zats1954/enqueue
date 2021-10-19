@@ -67,21 +67,21 @@ class PostRepositoryImpl @Inject constructor(
         return dao.getById(id).toDto()
     }
 
-    override fun getNewerCount(): Flow<Int> = flow {
-        while (true) {
-            try {
-                val lastId = postKeyDao.max() ?: 0L
-                val newer = service.getNewer(lastId).map(PostEntity.Companion::fromDto)
-                dao.insert(newer.map {
-                    val value = it.copy(newPost = true)
-                    value
-                })
-                emit(newer.size)
-                delay(30_000L)
-            } catch (e: IOException) {
-            }
-        }
-    }
+//    override fun getNewerCount(): Flow<Int> = flow {
+//        while (true) {
+//            try {
+//                val lastId = postKeyDao.max() ?: 0L
+//                val newer = service.getNewer(lastId).map(PostEntity.Companion::fromDto)
+//                dao.insert(newer.map {
+//                    val value = it.copy(newPost = true)
+//                    value
+//                })
+//                emit(newer.size)
+//                delay(30_000L)
+//            } catch (e: IOException) {
+//            }
+//        }
+//    }
 
     override suspend fun save(post: Post): Response<Post> {
         return service.save(post)

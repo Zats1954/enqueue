@@ -12,7 +12,7 @@ interface PostRepository {
     val data: Flow<PagingData<Post>>
     suspend fun getAll()
     suspend fun getById(id: Long): Post
-    fun getNewerCount(): Flow<Int>
+//    fun getNewerCount(): Flow<Int>
     suspend fun save(post: Post): Response<Post>
     suspend fun likeById(id: Long)
     suspend fun removeById(id: Long): Response<Unit>

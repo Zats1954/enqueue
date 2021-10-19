@@ -26,38 +26,39 @@ class PostRemoteMediator(
         try {
             val pageSize = state.config.pageSize
             val response = when (loadType) {
-                 LoadType.REFRESH  -> {
-//                     dao.removeAll()
-                     println("***************************************** load REFRESH")
-                    api.getLatest(pageSize)}
-                 LoadType.APPEND -> {
-                     println("***************************************** load APPEND")
-                     val id = postKeyDao.min() ?: return MediatorResult.Success(false)
-                     api.getBefore(id, pageSize)}
-                 LoadType.PREPEND -> {
-                     println("***************************************** load PREPEND")
-//                     val id = postKeyDao.max() ?:
-                       return MediatorResult.Success(true)
-//                     api.getAfter(id, pageSize)
+                LoadType.REFRESH -> {
+                    val id = postKeyDao.max() ?: 0L
+                    if (id.equals(0L)) {
+                        api.getLatest(pageSize)
+                    } else {
+                        api.getNewer(id)
+                    }
+                }
+                LoadType.APPEND -> {
+                    val id = postKeyDao.min() ?: return MediatorResult.Success(false)
+                    api.getBefore(id, pageSize)
+                }
+                LoadType.PREPEND -> {
+                    return MediatorResult.Success(true)
                 }
             }
-            if (!response.isSuccessful){throw ApiError(
-                response.code(),
-                response.message()
-            )}
+            if (!response.isSuccessful) {
+                throw ApiError(
+                    response.code(),
+                    response.message()
+                )
+            }
             val data = response.body() ?: throw ApiError(
                 response.code(),
                 response.message()
             )
-
-            if(data.isEmpty()){
+            if (data.isEmpty()) {
                 return MediatorResult.Success(true)
             }
 
             db.withTransaction {
-                when(loadType){
+                when (loadType) {
                     LoadType.REFRESH -> {
-                        println("***************************************** Transaction REFRESH")
                         postKeyDao.insert(
                             listOf(
                                 PostRemoteKeyEntity(
@@ -65,25 +66,16 @@ class PostRemoteMediator(
                                     data.first().id
                                 ),
                                 PostRemoteKeyEntity(
-                                        PostRemoteKeyEntity.Type.APPEND,
-                                data.last().id
-                            )
+                                    PostRemoteKeyEntity.Type.APPEND,
+                                    data.last().id
+                                )
 
                             )
                         )
-//                        dao.removeAll()
                     }
                     LoadType.PREPEND -> {
-                        println("***************************************** Transaction PREPEND")
-//                        postKeyDao.insert(
-//                           PostRemoteKeyEntity(
-//                                    PostRemoteKeyEntity.Type.PREPEND,
-//                                    data.first().id
-//                                )
-//                        )
                     }
                     LoadType.APPEND -> {
-                        println("***************************************** Transaction APPEND")
                         postKeyDao.insert(
                             PostRemoteKeyEntity(
                                 PostRemoteKeyEntity.Type.APPEND,
