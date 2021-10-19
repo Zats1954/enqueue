@@ -38,6 +38,7 @@ class PostRepositoryImpl @Inject constructor(
     private val db: AppDb,
     private val postKeyDao: PostKeyDao
 ) : PostRepository {
+
     @ExperimentalPagingApi
     override val data: Flow<PagingData<Post>> = Pager(
         config = PagingConfig(pageSize = 10, enablePlaceholders = false),
