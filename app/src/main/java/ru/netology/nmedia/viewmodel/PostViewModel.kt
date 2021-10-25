@@ -5,6 +5,7 @@ import androidx.core.net.toFile
 import androidx.lifecycle.*
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.insertSeparators
 import androidx.paging.map
 import androidx.work.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,8 +19,7 @@ import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.enumeration.AttachmentType
-import ru.netology.nmedia.model.FeedState
-import ru.netology.nmedia.model.PhotoModel
+import ru.netology.nmedia.model.*
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.util.SingleLiveEvent
 import ru.netology.nmedia.work.RemovePostWorker
@@ -27,6 +27,7 @@ import ru.netology.nmedia.work.SavePostWorker
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
+import kotlin.random.Random
 
 private val noPhoto = PhotoModel()
 
@@ -55,12 +56,18 @@ class PostViewModel @Inject constructor(
 
     private val cached = repository.data.cachedIn(viewModelScope)
 
-    val data: Flow<PagingData<Post>> = auth
+    val data: Flow<PagingData<FeedModel>> = auth
         .authStateFlow
         .flatMapLatest { (myId, _) ->
             _authChanged.value = Unit   // вызов перезагрузки постов с сервера
             val answer = cached.map { posts ->
-                posts.map { it.copy(ownedByMe = it.authorId == myId) }
+                posts.map { PostModel(it.copy(ownedByMe = it.authorId == myId)) }
+                    .insertSeparators { post,_ ->
+                        if(post?.id?.rem(5) == 0L){
+                            AdModel(Random.nextLong(),"figma.jpg")
+                        }
+                        else {null}
+                    }
             }
             FeedState.Success
             answer
