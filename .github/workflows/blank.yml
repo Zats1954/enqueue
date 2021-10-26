@@ -1,10 +1,10 @@
-name: CI ARCH2
+name: CI RECVIEW
 
 on:
   push:
-    branches: [ arch2 ]
+    branches: [ recView ]
   pull_request:
-    branches: [ arch2 ]
+    branches: [ recView ]
 
 jobs:
   build:
