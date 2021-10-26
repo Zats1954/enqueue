@@ -16,6 +16,7 @@ import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.fragment_feed.view.*
 import kotlinx.coroutines.flow.collectLatest
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
@@ -148,9 +149,30 @@ class FeedFragment : Fragment() {
         }
         lifecycleScope.launchWhenCreated {
             adapter.loadStateFlow.collectLatest { state ->
-                binding.swiperefresh.isRefreshing = state.append is LoadState.Loading
-                        || state.prepend is LoadState.Loading
-                        || state.refresh is LoadState.Loading
+                if(state.refresh is LoadState.Loading){
+                    binding.swiperefresh.isRefreshing = true
+                    binding.topProgressBar.isVisible = false
+                    binding.bottomProgressBar.isVisible = false
+                }
+                else{
+                    binding.swiperefresh.isRefreshing = false
+                }
+                if(state.prepend is LoadState.Loading){
+                    binding.swiperefresh.isRefreshing = false
+                    binding.topProgressBar.isVisible = true
+                    binding.bottomProgressBar.isVisible = false
+                }
+                else{
+                    binding.topProgressBar.isVisible = false
+                }
+                if(state.append is LoadState.Loading){
+                    binding.swiperefresh.isRefreshing = false
+                    binding.topProgressBar.isVisible = false
+                    binding.bottomProgressBar.isVisible = true
+                }
+                else{
+                    binding.bottomProgressBar.isVisible = false
+                }
             }
         }
 

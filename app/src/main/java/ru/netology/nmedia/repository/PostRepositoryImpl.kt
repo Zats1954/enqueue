@@ -51,6 +51,7 @@ class PostRepositoryImpl @Inject constructor(
     override suspend fun getAll() {
         try {
             dao.removeAll()
+            postKeyDao.removeAll()
             val response = service.getLatest(10)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())

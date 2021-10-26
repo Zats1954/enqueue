@@ -25,21 +25,27 @@ class PostRemoteMediator(
     ): MediatorResult {
         try {
             val pageSize = state.config.pageSize
-            val maxId = postKeyDao.max() ?: 0L
+//            val maxId = postKeyDao.max() ?: 0L
             val response = when (loadType) {
                 LoadType.REFRESH -> {
-                    if (maxId.equals(0L)) {
-                        api.getLatest(pageSize)
-                    } else {
-                        api.getNewer(maxId)
-                    }
+//                    if (maxId.equals(0L)) {
+
+                       val res = api.getLatest(pageSize)
+                       if(res.isSuccessful){dao.removeAll()}
+                       res
+//                    } else {
+//                        api.getNewer(maxId)
+//                    }
                 }
                 LoadType.APPEND -> {
                     val id = postKeyDao.min() ?: return MediatorResult.Success(false)
+                    println("********************** APPEND id ${id}")
                     api.getBefore(id, pageSize)
                 }
                 LoadType.PREPEND -> {
-                    return MediatorResult.Success(true)
+                    val id = postKeyDao.max() ?: return MediatorResult.Success(false)
+                    api.getAfter(id, pageSize)
+//                    return MediatorResult.Success(false)
                 }
             }
             if (!response.isSuccessful) {
@@ -52,6 +58,8 @@ class PostRemoteMediator(
                 response.code(),
                 response.message()
             )
+            println("************************** data ${data}")
+            println("************************** data*****************")
             if (data.isEmpty()) {
                 return MediatorResult.Success(true)
             }
@@ -59,7 +67,7 @@ class PostRemoteMediator(
             db.withTransaction {
                 when (loadType) {
                     LoadType.REFRESH -> {
-                        if(maxId.equals(0L)) {
+//                        if(maxId.equals(0L)) {
                             postKeyDao.insert(
                                 listOf(
                                     PostRemoteKeyEntity(
@@ -73,15 +81,21 @@ class PostRemoteMediator(
 
                                 )
                             )
-                        }
-                        else {  postKeyDao.insert(
-                            listOf(
-                                PostRemoteKeyEntity(
-                                    PostRemoteKeyEntity.Type.PREPEND,
-                                    data.last().id
-                                )))}
+//                        }
+//                        else {  postKeyDao.insert(
+//                            listOf(
+//                                PostRemoteKeyEntity(
+//                                    PostRemoteKeyEntity.Type.PREPEND,
+//                                    data.last().id
+//                                )))}
                     }
                     LoadType.PREPEND -> {
+                        postKeyDao.insert(
+                            PostRemoteKeyEntity(
+                                PostRemoteKeyEntity.Type.PREPEND,
+                                data.first().id
+                            )
+                        )
                     }
                     LoadType.APPEND -> {
                         postKeyDao.insert(
